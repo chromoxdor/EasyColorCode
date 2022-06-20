@@ -1,18 +1,71 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="en">
 
-<title>CodeMirror: Espeasy Demo</title>
-<meta charset="utf-8" />
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/chromoxdor/ESPEasy@esp_codemirror/static/codemirror.min.css">
+  <script src="https://cdn.jsdelivr.net/gh/chromoxdor/ESPEasy@esp_codemirror/static/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/chromoxdor/ESPEasy@esp_codemirror/static/espeasy.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/chromoxdor/ESPEasy@esp_codemirror/static/anyword-hint.min.js"
+    id="anyword"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style media="screen">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/chromoxdor/ESPEasy@esp_codemirror/static/codemirror.min.css">
-<script src="https://cdn.jsdelivr.net/gh/chromoxdor/ESPEasy@esp_codemirror/static/codemirror.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/chromoxdor/ESPEasy@esp_codemirror/static/espeasy.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/chromoxdor/ESPEasy@esp_codemirror/static/anyword-hint.min.js"
-  id="anyword"></script>
-<textarea id="rules" name="rules" rows="30" wrap="off" style="display: none;">
+    body {
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #44607a;
+      font-family: "Kanit", Verdana, Arial, sans-serif;
+    }
 
-</textarea>
+    * {
+      box-sizing: border-box;
+    }
 
+    #container {
+      padding: 40px 20px;
+      background: #f0f0f0;
+    }
 
-<script>
-  initCM();
-</script>
+    h1 {
+      color: #44607a;
+      font-size: 30px;
+      width: 100%;
+      margin-top: -15px;
+      margin-bottom: 30px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    #text {
+      display: block;
+      width: 100%;
+      background-color: transparent;
+      color: #021652;
+      border: 2px solid #44607a;
+      border-radius: 2px;
+      resize: none;
+      margin-bottom: 35px;
+      height: 500px;
+      padding: 10px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container">
+    <h1>ESPEasy Code Highlighting Demo</h1>
+    <textarea placeholder="Type your text here..." id="rules"></textarea>
+  </div>
+  <script type="text/javascript">
+    initCM();
+  </script>
+</body>
+
+</html>
