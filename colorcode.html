@@ -64,7 +64,10 @@
     <textarea placeholder="Type your text here..." id="rules"></textarea>
   </div>
   <script type="text/javascript">
-    initCM();
+     CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
+  var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), { lineNumbers: true, extraKeys: { 'Ctrl-Space': 'autocomplete' } });
+  rEdit.on('change', function () { rEdit.save() });
+    //initCM();
   </script>
 </body>
 
