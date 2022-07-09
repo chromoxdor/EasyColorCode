@@ -113,6 +113,16 @@ function initCM() {
   CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
   var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), { lineNumbers: true, extraKeys: { 'Ctrl-Space': 'autocomplete' } });
   rEdit.on('change', function () { rEdit.save() });
+  //hinting on input
+  rEdit.on("inputRead", function (cm, event) {
+    var letters = /[A-Za-z]/; //letters only
+    if (letters.test(event.text)) {
+      if (!cm.state.completionActive && /*Enables keyboard navigation in autocomplete list*/
+        event.keyCode != 13) {        /*Enter - do not open autocomplete list just after item has been selected in it*/
+        cm.showHint({ completeSingle: false });
+      }
+    };
+  });
 }
 
 
