@@ -117,10 +117,7 @@ function initCM() {
   rEdit.on("inputRead", function (cm, event) {
     var letters = /[A-Za-z]/; //letters only
     if (letters.test(event.text)) {
-      if (!cm.state.completionActive && /*Enables keyboard navigation in autocomplete list*/
-        event.keyCode != 13) {        /*Enter - do not open autocomplete list just after item has been selected in it*/
         cm.showHint({ completeSingle: false });
-      }
     };
   });
 }
