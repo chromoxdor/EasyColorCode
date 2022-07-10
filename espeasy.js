@@ -116,8 +116,11 @@ function initCM() {
   //hinting on input
   rEdit.on("inputRead", function (cm, event) {
     var letters = /[A-Za-z]/; //letters only
-    if (letters.test(event.text)) {
-        cm.showHint({ completeSingle: false });
+    var cur = cm.getCursor();
+    var token = cm.getTokenAt(cur);
+    console.log(token);
+    if (letters.test(event.text) && token.type != "comment") {
+      cm.showHint({ completeSingle: false });
     };
   });
 }
