@@ -118,7 +118,6 @@ function initCM() {
     var letters = /[A-Za-z]/; //letters only
     var cur = cm.getCursor();
     var token = cm.getTokenAt(cur);
-    console.log(token);
     if (letters.test(event.text) && token.type != "comment") {
       cm.showHint({ completeSingle: false });
     };
@@ -217,12 +216,14 @@ function initCM() {
           stream.skipToEnd();
           return "comment";
         }
-        else if (stream.match("control?cmd")) {
-          return "builtin";
-        }
         else {
           return 'string-2';
         }
+      }
+
+      if (ch == "'") {
+        stream.eatWhile(/[^']/);
+        if (stream.match("'")) return 'attribute';
       }
 
       if (ch === '+' || ch === '=' || ch === '<' || ch === '>' || ch === '-' || ch === ',' || ch === '*' || ch === '!') {
