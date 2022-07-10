@@ -195,7 +195,7 @@ function initCM() {
       if (/\w/.test(ch)) {
         for (const element of EXTRAWORDS) {
           let WinDB = element.substring(1);
-          if (element.includes(",") && stream.match(WinDB)) void (0)
+          if ((element.includes(":") || element.includes(",")) && stream.match(WinDB)) void (0)
         }
       }
 
