@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/chromoxdor/EasyColorCode/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/chromoxdor/EasyColorCode/codemirror_web.min.css">
   <script src="https://cdn.jsdelivr.net/gh/chromoxdor/EasyColorCode/codemirror.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/chromoxdor/EasyColorCode/espeasy.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/chromoxdor/EasyColorCode/anyword-hint.min.js"
@@ -68,6 +68,12 @@
      CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
   var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), { lineNumbers: true, extraKeys: { 'Ctrl-Space': 'autocomplete' } });
   rEdit.on('change', function () { rEdit.save() });
+  rEdit.on("inputRead", function (cm, event) {
+    var letters = /[A-Za-z]/; //letters only
+    if (letters.test(event.text)) {
+        cm.showHint({ completeSingle: false });
+    };
+  });
     //initCM();
   </script>
 </body>
