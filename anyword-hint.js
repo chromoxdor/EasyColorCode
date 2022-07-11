@@ -17,7 +17,6 @@
     var range = options && options.range || RANGE;
     var extraWords = options && options.extraWords || EXTRAWORDS;
     var cur = editor.getCursor(), curLine = editor.getLine(cur.line);
-    var token = editor.getTokenAt(cur);
     var end = cur.ch, start = end;
     while (start && word.test(curLine.charAt(start - 1))) --start;
     var curWord = start != end && curLine.slice(start, end);
@@ -39,11 +38,9 @@
     }
     list.sort();
     list.reverse();
-    var arr = list;
     let tempList = new Map(list.map(s => [s.toLowerCase(), s]));
     list = [...tempList.values()];
     list.sort();
-    //list.push(...(extraWords.filter(el => el.toLowerCase().startsWith(curWord || ''))));
     var list2 = extraWords.filter(el => el.toLowerCase().startsWith(curWord || ''));
     list2.sort();
     list = list.concat(list2);
@@ -53,6 +50,24 @@
       return a.toLowerCase().localeCompare(b.toLowerCase());
   });
     return { list: list, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, end) };
+    /*return {
+      list: [{
+              text: list,
+              displayText: list,
+              render(el, cm, data) {
+                  var icon = document.createElement('span')
+                  icon.className = 'myicon'
+
+                  var text = document.createElement('span')
+                  text.innerText = data.displayText
+
+                  el.appendChild(icon)
+                  el.appendChild(text)
+              }
+      }],
+      from: CodeMirror.Pos(cur.line, start),
+      to: CodeMirror.Pos(cur.line, cur.ch)
+  };*/
   });
 });
 
