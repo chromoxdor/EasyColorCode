@@ -11,7 +11,7 @@
 })(function (CodeMirror) {
   "use strict";
 
-  var WORD = /(?<![\p{Zs}\t]*\/\/.*)(?<!\/\*(?:(?!\*\/)[\s\S\r])*?)[\w?#.,]+/, RANGE = 500;
+  var WORD = /(?<![\p{Zs}\t]*\/\/.*)(?<!\/\*(?:(?!\*\/)[\s\S\r])*?)[\w?#.,]+/, RANGE = 500; //works not on safari (macos/ios) because of regex lookbehind
   CodeMirror.registerHelper("hint", "anyword", function (editor, options) {
     var word = options && options.word || WORD;
     var range = options && options.range || RANGE;
@@ -48,7 +48,7 @@
     list = [...tempList2.values()];
     list.sort(function (a, b) {
       return a.toLowerCase().localeCompare(b.toLowerCase());
-  });
+    });
     return { list: list, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, end) };
     /*return {
       list: [{
