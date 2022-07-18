@@ -11,7 +11,7 @@
 })(function (CodeMirror) {
   "use strict";
 
-  var WORD = /(?<![\p{Zs}\t]*\/\/.*)(?<!\/\*(?:(?!\*\/)[\s\S\r])*?)[\w?#.,]+/, RANGE = 500; //works not on safari (macos/ios) because of regex lookbehind
+  var WORD = /[\w?#.,]+/, RANGE = 500; 
   CodeMirror.registerHelper("hint", "anyword", function (editor, options) {
     var word = options && options.word || WORD;
     var range = options && options.range || RANGE;
@@ -27,6 +27,7 @@
       var line = cur.line, endLine = Math.min(Math.max(line + dir * range, editor.firstLine()), editor.lastLine()) + dir;
       for (; line != endLine; line += dir) {
         var text = editor.getLine(line), m;
+        text = text.replace(/\/{2}.*/g,''); //filter out comments
         while (m = re.exec(text)) {
           if (line == cur.line && m[0].toLowerCase() === curWord) continue;
           if ((!curWord || m[0].toLowerCase().lastIndexOf(curWord, 0) == 0) && !Object.prototype.hasOwnProperty.call(seen, m[0])) {
