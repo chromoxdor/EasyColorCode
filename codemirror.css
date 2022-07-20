@@ -609,6 +609,10 @@ li.CodeMirror-hint-active {
   .CodeMirror-gutters {
     display: none;
   }
+
+  .CodeMirror-linenumber {
+    display: none;
+}
 }
 
 @media (prefers-color-scheme: dark) {

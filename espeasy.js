@@ -111,7 +111,7 @@ var EXTRAWORDS = commonAtoms.concat(commonPlugins, commonKeywords, commonCommand
 
 function initCM() {
   CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
-  var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), { lineNumbers: true, extraKeys: { 'Ctrl-Space': 'autocomplete' } });
+  var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {tabSize: 2, indentWithTabs: true, lineNumbers: true, extraKeys: { 'Ctrl-Space': 'autocomplete' } });
   rEdit.on('change', function () { rEdit.save() });
   //hinting on input
   rEdit.on("inputRead", function (cm, event) {
