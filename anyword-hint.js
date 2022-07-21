@@ -51,24 +51,6 @@
       return a.toLowerCase().localeCompare(b.toLowerCase());
     });
     return { list: list, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, end) };
-    /*return {
-      list: [{
-              text: list,
-              displayText: list,
-              render(el, cm, data) {
-                  var icon = document.createElement('span')
-                  icon.className = 'myicon'
-
-                  var text = document.createElement('span')
-                  text.innerText = data.displayText
-
-                  el.appendChild(icon)
-                  el.appendChild(text)
-              }
-      }],
-      from: CodeMirror.Pos(cur.line, start),
-      to: CodeMirror.Pos(cur.line, cur.ch)
-  };*/
   });
 });
 
