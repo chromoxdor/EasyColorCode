@@ -95,7 +95,8 @@ var commonTag = ["On", "Do", "Endon"];
 var commonNumber = ["toBin", "toHex", "Constrain", "XOR", "AND:", "OR:", "Ord", "bitRead", "bitSet", "bitClear", "bitWrite", "urlencode"];
 var commonMath = ["Log", "Ln", "Abs", "Exp", "Sqrt", "Sq", "Round", "Sin", "Cos", "Tan", "aSin", "aCos", "aTan", "Sind_d", "Cos_d", "Tan_d", "aSin_d", "aCos_d", "sTan_d"];
 var commonWarning = ["delay", "Delay"];
-var AnythingElse = [];
+//things that does not fit in any other catergory (for now)
+var AnythingElse = ["eventvalue", "eventpar", "eventname", "substring"];
 
 //merging displayspecific commands of P095,P096,P116,P131 into commonPlugins
 for (const element2 of pluginDispKind) {
