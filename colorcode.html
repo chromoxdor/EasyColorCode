@@ -70,7 +70,7 @@
   var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), { lineNumbers: true, extraKeys: { 'Ctrl-Space': 'autocomplete' } });
   rEdit.on('change', function () { rEdit.save() });
   rEdit.on("inputRead", function (cm, event) {
-    var letters = /[A-Za-z]/; //letters only
+    var letters = /[\w%,\[]/; //characters for activation
     if (letters.test(event.text)) {
         cm.showHint({ completeSingle: false });
     };

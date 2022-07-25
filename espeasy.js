@@ -96,7 +96,7 @@ var commonNumber = ["toBin", "toHex", "Constrain", "XOR", "AND:", "OR:", "Ord", 
 var commonMath = ["Log", "Ln", "Abs", "Exp", "Sqrt", "Sq", "Round", "Sin", "Cos", "Tan", "aSin", "aCos", "aTan", "Sind_d", "Cos_d", "Tan_d", "aSin_d", "aCos_d", "sTan_d"];
 var commonWarning = ["delay", "Delay"];
 //things that does not fit in any other catergory (for now)
-var AnythingElse = ["eventvalue", "eventpar", "eventname", "substring"];
+var AnythingElse = ["%eventvalue%", "%eventpar%", "%eventname%", "substring"];
 
 //merging displayspecific commands of P095,P096,P116,P131 into commonPlugins
 for (const element2 of pluginDispKind) {
@@ -117,7 +117,7 @@ function initCM() {
   rEdit.on('change', function () { rEdit.save() });
   //hinting on input
   rEdit.on("inputRead", function (cm, event) {
-    var letters = /[A-Za-z]/; //letters only
+    var letters = /[\w%,\[]/; //characters for activation
     var cur = cm.getCursor();
     var token = cm.getTokenAt(cur);
     if (letters.test(event.text) && token.type != "comment") {
