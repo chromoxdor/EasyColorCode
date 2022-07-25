@@ -96,7 +96,20 @@ var commonNumber = ["toBin", "toHex", "Constrain", "XOR", "AND:", "OR:", "Ord", 
 var commonMath = ["Log", "Ln", "Abs", "Exp", "Sqrt", "Sq", "Round", "Sin", "Cos", "Tan", "aSin", "aCos", "aTan", "Sind_d", "Cos_d", "Tan_d", "aSin_d", "aCos_d", "sTan_d"];
 var commonWarning = ["delay", "Delay"];
 //things that does not fit in any other catergory (for now)
-var AnythingElse = ["%eventvalue%", "%eventpar%", "%eventname%", "substring"];
+var AnythingElse = [
+  //System Variables
+  "%eventvalue%", "%eventpar%", "%eventname%", "substring", "%sysname%", "%bootcause%", "%systime%", "%systm_hm%",
+  "%systm_hm_0%", "%systm_hm_sp%", "%systime_am%", "%systime_am_0%", "%systime_am_sp%", "%systm_hm_am%", "%systm_hm_am_0%", "%systm_hm_am_sp%",
+  "%lcltime%", "%sunrise%", "%s_sunrise%", "%m_sunrise%", "%sunset%", "%s_sunset%", "%m_sunset%", "%lcltime_am%",
+  "%syshour%", "%syshour_0%", "%sysmin%", "%sysmin_0%", "%syssec%", "%syssec_0%", "%sysday%", "%sysday_0%", "%sysmonth%",
+  "%sysmonth_0%", "%sysyear%", "%sysyear_0%", "%sysyears%", "%sysweekday%", "%sysweekday_s%", "%unixtime%", "%uptime%", "%uptime_ms%",
+  "%rssi%", "%ip%", "%unit%", "%ssid%", "%bssid%", "%wi_ch%", "%iswifi%", "%vcc%", "%mac%", "%mac_int%", "%isntp%", "%ismqtt%",
+  "%dns%", "%dns1%", "%dns2%", "%flash_freq%", "%flash_size%", "%flash_chip_vendor%", "%flash_chip_model%", "%fs_free%", "%fs_size%",
+  "%cpu_id%", "%cpu_freq%", "%cpu_model%", "%cpu_rev%", "%cpu_cores%", "%board_name%",
+//Standard Conversions
+  "%c_w_dir%", "%c_c2f%", "%c_ms2Bft%", "%c_dew_th%", "%c_alt_pres_sea%", "%c_sea_pres_alt%", "%c_cm2imp%", "%c_mm2imp%",
+  "%c_m2day%", "%c_m2dh%", "%c_m2dhm%", "%c_s2dhms%", "%c_2hex%", "%c_u2ip%"
+];
 
 //merging displayspecific commands of P095,P096,P116,P131 into commonPlugins
 for (const element2 of pluginDispKind) {
@@ -113,7 +126,7 @@ var EXTRAWORDS = commonAtoms.concat(commonPlugins, commonKeywords, commonCommand
 
 function initCM() {
   CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
-  var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {tabSize: 2, indentWithTabs: true, lineNumbers: true, extraKeys: { 'Ctrl-Space': 'autocomplete' } });
+  var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), { tabSize: 2, indentWithTabs: true, lineNumbers: true, extraKeys: { 'Ctrl-Space': 'autocomplete' } });
   rEdit.on('change', function () { rEdit.save() });
   //hinting on input
   rEdit.on("inputRead", function (cm, event) {
