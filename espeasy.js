@@ -205,19 +205,19 @@ function initCM() {
             stream.eatWhile(/\w/);
             return 'number';
           }
-          else { 
+          else {
             stream.eatWhile(/\d|\./);
-            return 'number' ;
+            return 'number';
           }
         }
         else {
           stream.eatWhile(/\d|\./);
-        if (!stream.match("d") && !stream.match("output")) {
-          if (stream.eol() || /\D/.test(stream.peek())) {
-            return 'number';
+          if (!stream.match("d") && !stream.match("output")) {
+            if (stream.eol() || /\D/.test(stream.peek())) {
+              return 'number';
+            }
           }
         }
-      }
       }
 
       if (/\w/.test(ch)) {
@@ -256,7 +256,7 @@ function initCM() {
       }
 
       if (ch === '+' || ch === '=' || ch === '<' || ch === '>' || ch === '-' || ch === ',' || ch === '*' || ch === '!') {
-        return 'qualifier'
+        return 'qualifier';
       }
 
       if (ch == "%") {
@@ -271,10 +271,17 @@ function initCM() {
 
       stream.eatWhile(/\w/);
       var cur = stream.current();
-      if (stream.peek() === '#' && /\w/.test(cur)) return 'string-2';
+
+      if (/\w/.test(ch)) {
+        if (stream.match("#")) {
+          stream.eatWhile(/[\w#]/);
+          return 'string-2';
+        }
+      }
+
       if (ch === '#') {
         stream.eatWhile(/\w/);
-        return 'string-2';
+        return 'number';
       }
       return words.hasOwnProperty(cur) ? words[cur] : null;
     }
