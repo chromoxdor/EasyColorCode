@@ -232,7 +232,7 @@ function initCM() {
           return "comment";
         }
         else {
-          return 'string-2';
+          return 'qualifier';
         }
       }
 
@@ -252,13 +252,16 @@ function initCM() {
 
       if (ch == "[") {
         stream.eatWhile(/[^\s\]]/);
-        if (stream.eat("]")) return 'string-2';
+        if (stream.eat("]")) return 'hr';
       }
 
       stream.eatWhile(/\w/);
       var cur = stream.current();
-      if (stream.peek() === '#' && /\w/.test(cur)) return 'hr';
-      if (ch === '#') { if (!/\w/.test(stream.peek()) && /[^#]/.test(cur)) return 'hr'; }
+      if (stream.peek() === '#' && /\w/.test(cur)) return 'string-2';
+      if (ch === '#'){
+      stream.eatWhile(/\w/);
+      return 'string-2'; 
+      }
       return words.hasOwnProperty(cur) ? words[cur] : null;
     }
 

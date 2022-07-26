@@ -220,7 +220,7 @@
 }
 
 .cm-s-default .cm-string-2 {
-  color: #ad5526;
+  color: #ff9800;
 }
 
 .cm-s-default .cm-meta {
@@ -248,7 +248,7 @@
 }
 
 .cm-s-default .cm-hr {
-  color: rgb(198, 105, 38);
+  color: #e78a4e;
 }
 
 .cm-s-default .cm-link {
@@ -700,7 +700,7 @@ li.CodeMirror-hint-active {
   }
 
   .cm-s-default .cm-string-2 {
-    color: #e78a4e;
+    color: #ff9800;
   }
 
   .cm-s-default .cm-comment {
@@ -748,7 +748,7 @@ li.CodeMirror-hint-active {
   }
 
   .cm-s-default .cm-hr {
-    color: #ea902c;
+    color: #e78a4e;
   }
 
   .CodeMirror-hint {
