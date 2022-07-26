@@ -108,7 +108,7 @@ var AnythingElse = [
   "%rssi%", "%ip%", "%unit%", "%ssid%", "%bssid%", "%wi_ch%", "%iswifi%", "%vcc%", "%mac%", "%mac_int%", "%isntp%", "%ismqtt%",
   "%dns%", "%dns1%", "%dns2%", "%flash_freq%", "%flash_size%", "%flash_chip_vendor%", "%flash_chip_model%", "%fs_free%", "%fs_size%",
   "%cpu_id%", "%cpu_freq%", "%cpu_model%", "%cpu_rev%", "%cpu_cores%", "%board_name%",
-//Standard Conversions
+  //Standard Conversions
   "%c_w_dir%", "%c_c2f%", "%c_ms2Bft%", "%c_dew_th%", "%c_alt_pres_sea%", "%c_sea_pres_alt%", "%c_cm2imp%", "%c_mm2imp%",
   "%c_m2day%", "%c_m2dh%", "%c_m2dhm%", "%c_s2dhms%", "%c_2hex%", "%c_u2ip%"
 ];
@@ -200,12 +200,24 @@ function initCM() {
       var ch = stream.next();
 
       if (/\d/.test(ch)) {
-        stream.eatWhile(/\d|\./);
+        if (ch == "0") {
+          if (stream.next() === 'x') {
+            stream.eatWhile(/\w/);
+            return 'number';
+          }
+          else { 
+            stream.eatWhile(/\d|\./);
+            return 'number' ;
+          }
+        }
+        else {
+          stream.eatWhile(/\d|\./);
         if (!stream.match("d") && !stream.match("output")) {
           if (stream.eol() || /\D/.test(stream.peek())) {
             return 'number';
           }
         }
+      }
       }
 
       if (/\w/.test(ch)) {
@@ -260,9 +272,9 @@ function initCM() {
       stream.eatWhile(/\w/);
       var cur = stream.current();
       if (stream.peek() === '#' && /\w/.test(cur)) return 'string-2';
-      if (ch === '#'){
-      stream.eatWhile(/\w/);
-      return 'string-2'; 
+      if (ch === '#') {
+        stream.eatWhile(/\w/);
+        return 'string-2';
       }
       return words.hasOwnProperty(cur) ? words[cur] : null;
     }
