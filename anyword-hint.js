@@ -1,5 +1,6 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/LICENSE
+var includesValue;
 
 (function (mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -11,7 +12,7 @@
 })(function (CodeMirror) {
   "use strict";
 
-  var WORD = /[\w?#.,%\[\]]+/, RANGE = 500; 
+  var WORD = /[\w?#.,%\[\]]+/, RANGE = 500;
   CodeMirror.registerHelper("hint", "anyword", function (editor, options) {
     var word = options && options.word || WORD;
     var range = options && options.range || RANGE;
@@ -21,13 +22,18 @@
     while (start && word.test(curLine.charAt(start - 1))) --start;
     var curWord = start != end && curLine.slice(start, end);
     if (curWord) { curWord = curWord.toLowerCase(); }
+    //autocorrect with space key and add a whitespace after the word
+    //look if the typed word is in the extraWord list
+    includesValue = extraWords.some(element => {
+      return element.toLowerCase() === curWord;
+    });
     var list = options && options.list || [], seen = {};
     var re = new RegExp(word.source, "g");
     for (var dir = -1; dir <= 1; dir += 2) {
       var line = cur.line, endLine = Math.min(Math.max(line + dir * range, editor.firstLine()), editor.lastLine()) + dir;
       for (; line != endLine; line += dir) {
         var text = editor.getLine(line), m;
-        text = text.replace(/\/{2}.*/g,''); //filter out comments
+        text = text.replace(/\/{2}.*/g, ''); //filter out comments
         while (m = re.exec(text)) {
           if (line == cur.line && m[0].toLowerCase() === curWord) continue;
           if ((!curWord || m[0].toLowerCase().lastIndexOf(curWord, 0) == 0) && !Object.prototype.hasOwnProperty.call(seen, m[0])) {
@@ -117,6 +123,7 @@
       var self = this;
       cm.on("cursorActivity", this.activityFunc = function () { self.cursorActivity(); });
     }
+    CodeMirror.signal(this, "startCompletion", this);
   }
 
   var requestAnimationFrame = window.requestAnimationFrame || function (fn) {
@@ -146,7 +153,7 @@
       var completion = data.list[i], self = this;
       this.cm.operation(function () {
         if (completion.hint)
-          completion.hint(self.cm, data, completion);
+          completion.hint(self.cm, data, completion)
         else
           self.cm.replaceRange(getText(completion), completion.from || data.from,
             completion.to || data.to, "complete");
@@ -191,7 +198,6 @@
 
     finishUpdate: function (data, first) {
       if (this.data) CodeMirror.signal(this.data, "update");
-
       var picked = (this.widget && this.widget.picked) || (first && this.options.completeSingle);
       if (this.widget) this.widget.close();
 
@@ -202,6 +208,8 @@
           this.pick(data, 0);
         } else {
           this.widget = new Widget(this, data);
+          //autocorrect with space key and add a whitespace after the word
+          if (includesValue) { data.list[0] = data.list[0] + ' '; includesValue = false; }
           CodeMirror.signal(data, "shown");
         }
       }
@@ -237,9 +245,11 @@
       Tab: handle.pick,
       Esc: handle.close
     };
-
     var mac = /Mac/.test(navigator.platform);
-
+    //autocorrect with space key and add a whitespace after the word
+    if (includesValue) {
+      baseMap["Space"] = handle.pick;
+    }
     if (mac) {
       baseMap["Ctrl-P"] = function () { handle.moveFocus(-1); };
       baseMap["Ctrl-N"] = function () { handle.moveFocus(1); };
@@ -555,7 +565,6 @@
       if (word.slice(0, term.length) == term)
         found.push(word);
     }
-
     if (found.length) return { list: found, from: from, to: to };
   });
 
