@@ -6,7 +6,7 @@
 //
 // You can find some technical background for some of the code below
 // at http://marijnhaverbeke.nl/blog/#cm-internals .
-
+var isSpace; //added by chromo
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
@@ -7231,6 +7231,8 @@
   // Handle a key from the keydown event.
   function handleKeyBinding(cm, e) {
     var name = keyName(e, true);
+    if (name === 'Space') isSpace=true;//added by chromo
+    else isSpace=false;                //added by chromo
     if (!name) { return false }
 
     if (e.shiftKey && !cm.state.keySeq) {

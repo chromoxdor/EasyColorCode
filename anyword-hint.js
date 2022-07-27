@@ -1,6 +1,6 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/LICENSE
-var includesValue;
+var isSame;
 
 (function (mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -11,7 +11,6 @@ var includesValue;
     mod(CodeMirror);
 })(function (CodeMirror) {
   "use strict";
-
   var WORD = /[\w?#.,%\[\]]+/, RANGE = 500;
   CodeMirror.registerHelper("hint", "anyword", function (editor, options) {
     var word = options && options.word || WORD;
@@ -24,7 +23,7 @@ var includesValue;
     if (curWord) { curWord = curWord.toLowerCase(); }
     //autocorrect with space key and add a whitespace after the word
     //look if the typed word is in the extraWord list
-    includesValue = extraWords.some(element => {
+    isSame = extraWords.some(element => {
       return element.toLowerCase() === curWord;
     });
     var list = options && options.list || [], seen = {};
@@ -71,7 +70,6 @@ var includesValue;
     showHint(CodeMirror);
 })(function (CodeMirror) {
   "use strict";
-
   var HINT_ELEMENT_CLASS = "CodeMirror-hint";
   var ACTIVE_HINT_ELEMENT_CLASS = "CodeMirror-hint-active";
 
@@ -200,7 +198,6 @@ var includesValue;
       if (this.data) CodeMirror.signal(this.data, "update");
       var picked = (this.widget && this.widget.picked) || (first && this.options.completeSingle);
       if (this.widget) this.widget.close();
-
       this.data = data;
 
       if (data && data.list.length) {
@@ -208,8 +205,6 @@ var includesValue;
           this.pick(data, 0);
         } else {
           this.widget = new Widget(this, data);
-          //autocorrect with space key and add a whitespace after the word
-          if (includesValue) { data.list[0] = data.list[0] + ' '; includesValue = false; }
           CodeMirror.signal(data, "shown");
         }
       }
@@ -247,7 +242,7 @@ var includesValue;
     };
     var mac = /Mac/.test(navigator.platform);
     //autocorrect with space key and add a whitespace after the word
-    if (includesValue) {
+    if (isSame) {
       baseMap["Space"] = handle.pick;
     }
     if (mac) {
@@ -456,6 +451,9 @@ var includesValue;
     },
 
     pick: function () {
+       //autocorrect with space key and add a whitespace after the word
+      if(isSame && isSpace){
+        this.data.list[0] = this.data.list[0] + ' '; isSame=false;}
       this.completion.pick(this.data, this.selectedHint);
     },
 
