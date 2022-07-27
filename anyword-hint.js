@@ -451,9 +451,13 @@ var isSame;
     },
 
     pick: function () {
-       //autocorrect with space key and add a whitespace after the word
-      if(isSame && isSpace){
-        this.data.list[0] = this.data.list[0] + ' '; isSame=false;}
+      //autocorrect with space key and add a whitespace after the word
+      if (isSame && nameKey === 'Space') {
+        this.data.list[0] = this.data.list[0] + ' '; isSame = false;
+      }
+      else if (isSame && nameKey === 'Enter'){
+        this.data.list[0] = this.data.list[0] + '\n'; isSame = false;
+      }
       this.completion.pick(this.data, this.selectedHint);
     },
 
