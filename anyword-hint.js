@@ -34,8 +34,6 @@ var isSame;
         var text = editor.getLine(line), m;
         text = text.replace(/\/{2}.*/g, ''); //filter out comments
         while (m = re.exec(text)) {
-          //console.log(m[0]);
-          //if (m[0] == 'if'){ m[0]='XXX'; console.log("DKSKKS");}
           if (line == cur.line && m[0].toLowerCase() === curWord) continue;
           if ((!curWord || m[0].toLowerCase().lastIndexOf(curWord, 0) == 0) && !Object.prototype.hasOwnProperty.call(seen, m[0])) {
             seen[m[0]] = true;
@@ -458,7 +456,7 @@ var isSame;
       var Xspace;
       var numCharA;
       numCharA = rEdit.getCursor().ch;
-      if (numCharA === 1) { Xspace = '';}
+      if (numCharA === 1) { Xspace = ''; }
       else { Xspace = ' '.repeat(numCharA - 2); }
 
       if (isSame && nameKey === 'Space') {
@@ -466,8 +464,9 @@ var isSame;
         else { this.data.list[0] = this.data.list[0] + ' '; isSame = false; whatisIt = 0; }
       }
       else if (isSame && nameKey === 'Enter') {
-        if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' ' + '\n' + Xspace+ '\n' + Xspace + 'Endif'; whatisIt = 1; }
-        else if (this.data.list[0] === 'On') { this.data.list[0] = this.data.list[0] + '  Do' + '\n\n' + Xspace + 'Endon'; whatisIt = 2; }
+        if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' ' + '\n' + Xspace + '\n' + Xspace + 'Endif'; whatisIt = 1; }
+        //else if (this.data.list[0] === 'On') { this.data.list[0] = this.data.list[0] + '  Do' + '\n\n' + Xspace + 'Endon'; whatisIt = 2; }
+        else if (this.data.list[0] === 'On') { this.data.list[0] = this.data.list[0] + '  Do' + '\n\n' + 'Endon'; whatisIt = 2; }
         else if (this.data.list[0] === 'Do') { this.data.list[0] = this.data.list[0] + '\n\n' + 'Endon'; whatisIt = 2.2; }
         else { this.data.list[0] = this.data.list[0] + '\n'; whatisIt = 0; }
         isSame = false;
@@ -479,8 +478,14 @@ var isSame;
       //autocompletion addition
       var numLine = rEdit.getCursor().line
       var numChar = rEdit.getCursor().ch
-      if (whatisIt === 1) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); rEdit.setCursor({ line: numLine - 2 });}
-      else if (whatisIt === 2) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); rEdit.setCursor({ line: numLine - 2, ch: numChar-2}); }
+      if (whatisIt === 1) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); rEdit.setCursor({ line: numLine - 2 }); }
+      //else if (whatisIt === 2) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); rEdit.setCursor({ line: numLine - 2, ch: numChar-2}); }
+      else if (whatisIt === 2) {
+        rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); rEdit.setCursor({ line: numLine - 2, ch: numCharA + 1 });
+        while (rEdit.getCursor().ch > 3) {
+          rEdit.execCommand('indentLess');
+        }
+      }
       else if (whatisIt === 2.2) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); }
       else if (whatisIt === 3) { rEdit.setCursor({ line: numLine, ch: numChar - 1 }); };
     },
