@@ -34,6 +34,8 @@ var isSame;
         var text = editor.getLine(line), m;
         text = text.replace(/\/{2}.*/g, ''); //filter out comments
         while (m = re.exec(text)) {
+          //console.log(m[0]);
+          //if (m[0] == 'if'){ m[0]='XXX'; console.log("DKSKKS");}
           if (line == cur.line && m[0].toLowerCase() === curWord) continue;
           if ((!curWord || m[0].toLowerCase().lastIndexOf(curWord, 0) == 0) && !Object.prototype.hasOwnProperty.call(seen, m[0])) {
             seen[m[0]] = true;
@@ -451,14 +453,38 @@ var isSame;
     },
 
     pick: function () {
-      //autocorrect with space key and add a whitespace after the word
+      //autocorrect with space key and add a whitespace after the word + autocompletion
+      var whatisIt;
+      var Xspace;
+      var numCharA;
+      numCharA = rEdit.getCursor().ch;
+      if (numCharA === 1) { Xspace = '';}
+      else { Xspace = ' '.repeat(numCharA - 2); }
+      console.log(numCharA, "X", Xspace);
+
       if (isSame && nameKey === 'Space') {
-        this.data.list[0] = this.data.list[0] + ' '; isSame = false;
+        if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' '; }
+        else { this.data.list[0] = this.data.list[0] + ' '; isSame = false; whatisIt = 0; }
       }
-      else if (isSame && nameKey === 'Enter'){
-        this.data.list[0] = this.data.list[0] + '\n'; isSame = false;
+      else if (isSame && nameKey === 'Enter') {
+        if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' ' + '\n' + Xspace + 'Endif'; whatisIt = 1; }
+        else if (this.data.list[0] === 'On') { this.data.list[0] = this.data.list[0] + '  Do' + '\n\n' + Xspace + 'Endon'; whatisIt = 2; }
+        else if (this.data.list[0] === 'Do') { this.data.list[0] = this.data.list[0] + '\n\n' + 'Endon'; whatisIt = 2.2; }
+        else { this.data.list[0] = this.data.list[0] + '\n'; whatisIt = 0; }
+        isSame = false;
       }
+      if (this.data.list[this.selectedHint] === 'LogEntry') { this.data.list[this.selectedHint] = this.data.list[this.selectedHint] + ',\'\''; whatisIt = 3; }
+      else if (this.data.list[this.selectedHint] === 'If') { if (numCharA > 1) { Xspace = Xspace + ' '; } this.data.list[this.selectedHint] = this.data.list[this.selectedHint] + ' ' + '\n' + Xspace + 'Endif'; whatisIt = 1; }
+
       this.completion.pick(this.data, this.selectedHint);
+      //autocompletion addition
+      var numLine = rEdit.getCursor().line
+      var numChar = rEdit.getCursor().ch
+      console.log(numChar);
+      if (whatisIt === 1) { rEdit.setCursor({ line: numLine - 1 }); }
+      else if (whatisIt === 2) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); rEdit.setCursor({ line: numLine - 2, ch: numChar-2}); }
+      else if (whatisIt === 2.2) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); }
+      else if (whatisIt === 3) { rEdit.setCursor({ line: numLine, ch: numChar - 1 }); };
     },
 
     changeActive: function (i, avoidWrap) {

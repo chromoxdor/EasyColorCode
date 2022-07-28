@@ -128,7 +128,24 @@ var EXTRAWORDS = commonAtoms.concat(commonPlugins, commonKeywords, commonCommand
 
 function initCM() {
   CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
-  var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), { tabSize: 2, indentWithTabs: true, lineNumbers: true, extraKeys: { 'Ctrl-Space': 'autocomplete' } });
+  var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
+    tabSize: 2, indentWithTabs: false, lineNumbers: true,
+    extraKeys: {
+      'Ctrl-Space': 'autocomplete',
+      Tab: (cm) => {
+        if (cm.getMode().name === 'null') {
+          cm.execCommand('insertTab');
+        } else {
+          if (cm.somethingSelected()) {
+            cm.execCommand('indentMore');
+          } else {
+            cm.execCommand('insertSoftTab');
+          }
+        }
+      },
+      'Shift-Tab': (cm) => cm.execCommand('indentLess')
+    }
+  });
   rEdit.on('change', function () { rEdit.save() });
   //hinting on input
   rEdit.on("inputRead", function (cm, event) {
