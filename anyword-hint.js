@@ -467,21 +467,21 @@ var isSame;
         else { this.data.list[0] = this.data.list[0] + ' '; isSame = false; whatisIt = 0; }
       }
       else if (isSame && nameKey === 'Enter') {
-        if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' ' + '\n' + Xspace + 'Endif'; whatisIt = 1; }
+        if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' ' + '\n' + Xspace+ '\n' + Xspace + 'Endif'; whatisIt = 1; }
         else if (this.data.list[0] === 'On') { this.data.list[0] = this.data.list[0] + '  Do' + '\n\n' + Xspace + 'Endon'; whatisIt = 2; }
         else if (this.data.list[0] === 'Do') { this.data.list[0] = this.data.list[0] + '\n\n' + 'Endon'; whatisIt = 2.2; }
         else { this.data.list[0] = this.data.list[0] + '\n'; whatisIt = 0; }
         isSame = false;
       }
       if (this.data.list[this.selectedHint] === 'LogEntry') { this.data.list[this.selectedHint] = this.data.list[this.selectedHint] + ',\'\''; whatisIt = 3; }
-      else if (this.data.list[this.selectedHint] === 'If') { if (numCharA > 1) { Xspace = Xspace + ' '; } this.data.list[this.selectedHint] = this.data.list[this.selectedHint] + ' ' + '\n' + Xspace + 'Endif'; whatisIt = 1; }
+      //else if (this.data.list[this.selectedHint] === 'If') { if (numCharA > 1) { Xspace = Xspace + ' '; } this.data.list[this.selectedHint] = this.data.list[this.selectedHint] + ' ' + '\n' + Xspace+ '\n' + Xspace + 'Endif'; whatisIt = 1; }
 
       this.completion.pick(this.data, this.selectedHint);
       //autocompletion addition
       var numLine = rEdit.getCursor().line
       var numChar = rEdit.getCursor().ch
       console.log(numChar);
-      if (whatisIt === 1) { rEdit.setCursor({ line: numLine - 1 }); }
+      if (whatisIt === 1) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); rEdit.setCursor({ line: numLine - 2 });}
       else if (whatisIt === 2) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); rEdit.setCursor({ line: numLine - 2, ch: numChar-2}); }
       else if (whatisIt === 2.2) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); }
       else if (whatisIt === 3) { rEdit.setCursor({ line: numLine, ch: numChar - 1 }); };
