@@ -460,7 +460,6 @@ var isSame;
       numCharA = rEdit.getCursor().ch;
       if (numCharA === 1) { Xspace = '';}
       else { Xspace = ' '.repeat(numCharA - 2); }
-      console.log(numCharA, "X", Xspace);
 
       if (isSame && nameKey === 'Space') {
         if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' '; }
@@ -480,7 +479,6 @@ var isSame;
       //autocompletion addition
       var numLine = rEdit.getCursor().line
       var numChar = rEdit.getCursor().ch
-      console.log(numChar);
       if (whatisIt === 1) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); rEdit.setCursor({ line: numLine - 2 });}
       else if (whatisIt === 2) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); rEdit.setCursor({ line: numLine - 2, ch: numChar-2}); }
       else if (whatisIt === 2.2) { rEdit.setCursor({ line: numLine - 1 }); rEdit.execCommand('insertSoftTab'); }
