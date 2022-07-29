@@ -68,7 +68,7 @@
   <script type="text/javascript">
      CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
   var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
-    tabSize: 2, indentWithTabs: false, lineNumbers: true,
+    tabSize: 2, indentWithTabs: false, lineNumbers: true, autoCloseBrackets: true,
     extraKeys: {
       'Ctrl-Space': 'autocomplete',
       Tab: (cm) => {
@@ -88,7 +88,7 @@
   rEdit.on('change', function () { rEdit.save() });
   //hinting on input
   rEdit.on("inputRead", function (cm, event) {
-    var letters = /[\w%,\[]/; //characters for activation
+    var letters = /[\w%,]/; //characters for activation
     var cur = cm.getCursor();
     var token = cm.getTokenAt(cur);
     if (letters.test(event.text) && token.type != "comment") {

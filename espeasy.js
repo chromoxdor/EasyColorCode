@@ -149,7 +149,7 @@ function initCM() {
   rEdit.on('change', function () { rEdit.save() });
   //hinting on input
   rEdit.on("inputRead", function (cm, event) {
-    var letters = /[\w%,\[]/; //characters for activation
+    var letters = /[\w%,]/; //characters for activation
     var cur = cm.getCursor();
     var token = cm.getTokenAt(cur);
     if (letters.test(event.text) && token.type != "comment") {
