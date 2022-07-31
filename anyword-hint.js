@@ -454,7 +454,8 @@ var isSame;
       //autocorrect with space key and add a whitespace after the word + autocompletion
       var whatisIt;
       var Xspace;
-      var numCharA = rEdit.getCursor().ch;
+      var numCharA;
+      numCharA = rEdit.getCursor().ch;
       if (numCharA === 1) { Xspace = ''; }
       else { Xspace = ' '.repeat(numCharA - 2); }
 

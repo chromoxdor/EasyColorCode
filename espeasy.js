@@ -126,9 +126,10 @@ for (const element2 of pluginDispKind) {
 
 var EXTRAWORDS = commonAtoms.concat(commonPlugins, commonKeywords, commonCommands, commonString2, commonTag, commonNumber, commonMath, commonWarning, AnythingElse);
 
+var rEdit;
 function initCM() {
   CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
-  var rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
+  rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
     tabSize: 2, indentWithTabs: false, lineNumbers: true, autoCloseBrackets: true,
     extraKeys: {
       'Ctrl-Space': 'autocomplete',
