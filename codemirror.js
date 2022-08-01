@@ -1,7 +1,7 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: https://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
-// This is CodeMirror (https://codemirror.net), a code editor
+// This is CodeMirror (https://codemirror.net/5), a code editor
 // implemented in JavaScript on top of the browser's DOM.
 //
 // You can find some technical background for some of the code below
@@ -114,15 +114,15 @@ var nameKey; //added by chromo
     } while (child = child.parentNode)
   }
 
-  function activeElt() {
+  function activeElt(doc) {
     // IE and Edge may throw an "Unspecified Error" when accessing document.activeElement.
     // IE < 10 will throw when accessed while the page is loading or in an iframe.
     // IE > 9 and Edge will throw when accessed in an iframe if document.body is unavailable.
     var activeElement;
     try {
-      activeElement = document.activeElement;
+      activeElement = doc.activeElement;
     } catch(e) {
-      activeElement = document.body || null;
+      activeElement = doc.body || null;
     }
     while (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement)
       { activeElement = activeElement.shadowRoot.activeElement; }
@@ -145,6 +145,10 @@ var nameKey; //added by chromo
     { selectInput = function(node) { node.selectionStart = 0; node.selectionEnd = node.value.length; }; }
   else if (ie) // Suppress mysterious IE10 errors
     { selectInput = function(node) { try { node.select(); } catch(_e) {} }; }
+
+  function doc(cm) { return cm.display.wrapper.ownerDocument }
+
+  function win(cm) { return doc(cm).defaultView }
 
   function bind(f) {
     var args = Array.prototype.slice.call(arguments, 1);
@@ -536,7 +540,7 @@ var nameKey; //added by chromo
 
   var on = function(emitter, type, f) {
     if (emitter.addEventListener) {
-      emitter.addEventListener(type, f, false);
+      emitter.addEventListener(type, f, {passive: false});
     } else if (emitter.attachEvent) {
       emitter.attachEvent("on" + type, f);
     } else {
@@ -2575,16 +2579,16 @@ var nameKey; //added by chromo
     cm.display.lineNumChars = null;
   }
 
-  function pageScrollX() {
+  function pageScrollX(doc) {
     // Work around https://bugs.chromium.org/p/chromium/issues/detail?id=489206
     // which causes page_Offset and bounding client rects to use
     // different reference viewports and invalidate our calculations.
-    if (chrome && android) { return -(document.body.getBoundingClientRect().left - parseInt(getComputedStyle(document.body).marginLeft)) }
-    return window.pageXOffset || (document.documentElement || document.body).scrollLeft
+    if (chrome && android) { return -(doc.body.getBoundingClientRect().left - parseInt(getComputedStyle(doc.body).marginLeft)) }
+    return doc.defaultView.pageXOffset || (doc.documentElement || doc.body).scrollLeft
   }
-  function pageScrollY() {
-    if (chrome && android) { return -(document.body.getBoundingClientRect().top - parseInt(getComputedStyle(document.body).marginTop)) }
-    return window.pageYOffset || (document.documentElement || document.body).scrollTop
+  function pageScrollY(doc) {
+    if (chrome && android) { return -(doc.body.getBoundingClientRect().top - parseInt(getComputedStyle(doc.body).marginTop)) }
+    return doc.defaultView.pageYOffset || (doc.documentElement || doc.body).scrollTop
   }
 
   function widgetTopHeight(lineObj) {
@@ -2612,8 +2616,8 @@ var nameKey; //added by chromo
     else { yOff -= cm.display.viewOffset; }
     if (context == "page" || context == "window") {
       var lOff = cm.display.lineSpace.getBoundingClientRect();
-      yOff += lOff.top + (context == "window" ? 0 : pageScrollY());
-      var xOff = lOff.left + (context == "window" ? 0 : pageScrollX());
+      yOff += lOff.top + (context == "window" ? 0 : pageScrollY(doc(cm)));
+      var xOff = lOff.left + (context == "window" ? 0 : pageScrollX(doc(cm)));
       rect.left += xOff; rect.right += xOff;
     }
     rect.top += yOff; rect.bottom += yOff;
@@ -2627,8 +2631,8 @@ var nameKey; //added by chromo
     var left = coords.left, top = coords.top;
     // First move into "page" coordinate system
     if (context == "page") {
-      left -= pageScrollX();
-      top -= pageScrollY();
+      left -= pageScrollX(doc(cm));
+      top -= pageScrollY(doc(cm));
     } else if (context == "local" || !context) {
       var localBox = cm.display.sizer.getBoundingClientRect();
       left += localBox.left;
@@ -3444,8 +3448,9 @@ var nameKey; //added by chromo
     if (signalDOMEvent(cm, "scrollCursorIntoView")) { return }
 
     var display = cm.display, box = display.sizer.getBoundingClientRect(), doScroll = null;
+    var doc = display.wrapper.ownerDocument;
     if (rect.top + box.top < 0) { doScroll = true; }
-    else if (rect.bottom + box.top > (window.innerHeight || document.documentElement.clientHeight)) { doScroll = false; }
+    else if (rect.bottom + box.top > (doc.defaultView.innerHeight || doc.documentElement.clientHeight)) { doScroll = false; }
     if (doScroll != null && !phantom) {
       var scrollNode = elt("div", "\u200b", null, ("position: absolute;\n                         top: " + (rect.top - display.viewOffset - paddingTop(cm.display)) + "px;\n                         height: " + (rect.bottom - rect.top + scrollGap(cm) + display.barHeight) + "px;\n                         left: " + (rect.left) + "px; width: " + (Math.max(2, rect.right - rect.left)) + "px;"));
       cm.display.lineSpace.appendChild(scrollNode);
@@ -3699,13 +3704,13 @@ var nameKey; //added by chromo
   NativeScrollbars.prototype.zeroWidthHack = function () {
     var w = mac && !mac_geMountainLion ? "12px" : "18px";
     this.horiz.style.height = this.vert.style.width = w;
-    this.horiz.style.pointerEvents = this.vert.style.pointerEvents = "none";
+    this.horiz.style.visibility = this.vert.style.visibility = "hidden";
     this.disableHoriz = new Delayed;
     this.disableVert = new Delayed;
   };
 
   NativeScrollbars.prototype.enableZeroWidthBar = function (bar, delay, type) {
-    bar.style.pointerEvents = "auto";
+    bar.style.visibility = "";
     function maybeDisable() {
       // To find out whether the scrollbar is still visible, we
       // check whether the element under the pixel in the bottom
@@ -3716,7 +3721,7 @@ var nameKey; //added by chromo
       var box = bar.getBoundingClientRect();
       var elt = type == "vert" ? document.elementFromPoint(box.right - 1, (box.top + box.bottom) / 2)
           : document.elementFromPoint((box.right + box.left) / 2, box.bottom - 1);
-      if (elt != bar) { bar.style.pointerEvents = "none"; }
+      if (elt != bar) { bar.style.visibility = "hidden"; }
       else { delay.set(1000, maybeDisable); }
     }
     delay.set(1000, maybeDisable);
@@ -3897,7 +3902,7 @@ var nameKey; //added by chromo
       cm.display.maxLineChanged = false;
     }
 
-    var takeFocus = op.focus && op.focus == activeElt();
+    var takeFocus = op.focus && op.focus == activeElt(doc(cm));
     if (op.preparedSelection)
       { cm.display.input.showSelection(op.preparedSelection, takeFocus); }
     if (op.updatedDisplay || op.startHeight != cm.doc.height)
@@ -4074,11 +4079,11 @@ var nameKey; //added by chromo
 
   function selectionSnapshot(cm) {
     if (cm.hasFocus()) { return null }
-    var active = activeElt();
+    var active = activeElt(doc(cm));
     if (!active || !contains(cm.display.lineDiv, active)) { return null }
     var result = {activeElt: active};
     if (window.getSelection) {
-      var sel = window.getSelection();
+      var sel = win(cm).getSelection();
       if (sel.anchorNode && sel.extend && contains(cm.display.lineDiv, sel.anchorNode)) {
         result.anchorNode = sel.anchorNode;
         result.anchorOffset = sel.anchorOffset;
@@ -4090,11 +4095,12 @@ var nameKey; //added by chromo
   }
 
   function restoreSelection(snapshot) {
-    if (!snapshot || !snapshot.activeElt || snapshot.activeElt == activeElt()) { return }
+    if (!snapshot || !snapshot.activeElt || snapshot.activeElt == activeElt(snapshot.activeElt.ownerDocument)) { return }
     snapshot.activeElt.focus();
     if (!/^(INPUT|TEXTAREA)$/.test(snapshot.activeElt.nodeName) &&
         snapshot.anchorNode && contains(document.body, snapshot.anchorNode) && contains(document.body, snapshot.focusNode)) {
-      var sel = window.getSelection(), range = document.createRange();
+      var doc = snapshot.activeElt.ownerDocument;
+      var sel = doc.defaultView.getSelection(), range = doc.createRange();
       range.setEnd(snapshot.anchorNode, snapshot.anchorOffset);
       range.collapse(false);
       sel.removeAllRanges();
@@ -4515,7 +4521,7 @@ var nameKey; //added by chromo
     // On Chrome 102, viewport updates somehow stop wheel-based
     // scrolling. Turning off pointer events during the scroll seems
     // to avoid the issue.
-    if (chrome && chrome_version >= 102) {
+    if (chrome && chrome_version == 102) {
       if (cm.display.chromeScrollHack == null) { cm.display.sizer.style.pointerEvents = "none"; }
       else { clearTimeout(cm.display.chromeScrollHack); }
       cm.display.chromeScrollHack = setTimeout(function () {
@@ -5206,7 +5212,7 @@ var nameKey; //added by chromo
       var range = sel.ranges[i];
       var old = sel.ranges.length == doc.sel.ranges.length && doc.sel.ranges[i];
       var newAnchor = skipAtomic(doc, range.anchor, old && old.anchor, bias, mayClear);
-      var newHead = skipAtomic(doc, range.head, old && old.head, bias, mayClear);
+      var newHead = range.head == range.anchor ? newAnchor : skipAtomic(doc, range.head, old && old.head, bias, mayClear);
       if (out || newAnchor != range.anchor || newHead != range.head) {
         if (!out) { out = sel.ranges.slice(0, i); }
         out[i] = new Range(newAnchor, newHead);
@@ -7259,7 +7265,7 @@ var nameKey; //added by chromo
   function onKeyDown(e) {
     var cm = this;
     if (e.target && e.target != cm.display.input.getField()) { return }
-    cm.curOp.focus = activeElt();
+    cm.curOp.focus = activeElt(doc(cm));
     if (signalDOMEvent(cm, e)) { return }
     // IE does strange things with escape.
     if (ie && ie_version < 11 && e.keyCode == 27) { e.returnValue = false; }
@@ -7366,7 +7372,7 @@ var nameKey; //added by chromo
     }
     if (clickInGutter(cm, e)) { return }
     var pos = posFromMouse(cm, e), button = e_button(e), repeat = pos ? clickRepeat(pos, button) : "single";
-    window.focus();
+    win(cm).focus();
 
     // #3261: make sure, that we're not starting a second selection
     if (button == 1 && cm.state.selectingText)
@@ -7421,7 +7427,7 @@ var nameKey; //added by chromo
 
   function leftButtonDown(cm, pos, repeat, event) {
     if (ie) { setTimeout(bind(ensureFocus, cm), 0); }
-    else { cm.curOp.focus = activeElt(); }
+    else { cm.curOp.focus = activeElt(doc(cm)); }
 
     var behavior = configureMouse(cm, repeat, event);
 
@@ -7491,19 +7497,19 @@ var nameKey; //added by chromo
   // Normal selection, as opposed to text dragging.
   function leftButtonSelect(cm, event, start, behavior) {
     if (ie) { delayBlurEvent(cm); }
-    var display = cm.display, doc = cm.doc;
+    var display = cm.display, doc$1 = cm.doc;
     e_preventDefault(event);
 
-    var ourRange, ourIndex, startSel = doc.sel, ranges = startSel.ranges;
+    var ourRange, ourIndex, startSel = doc$1.sel, ranges = startSel.ranges;
     if (behavior.addNew && !behavior.extend) {
-      ourIndex = doc.sel.contains(start);
+      ourIndex = doc$1.sel.contains(start);
       if (ourIndex > -1)
         { ourRange = ranges[ourIndex]; }
       else
         { ourRange = new Range(start, start); }
     } else {
-      ourRange = doc.sel.primary();
-      ourIndex = doc.sel.primIndex;
+      ourRange = doc$1.sel.primary();
+      ourIndex = doc$1.sel.primIndex;
     }
 
     if (behavior.unit == "rectangle") {
@@ -7520,18 +7526,18 @@ var nameKey; //added by chromo
 
     if (!behavior.addNew) {
       ourIndex = 0;
-      setSelection(doc, new Selection([ourRange], 0), sel_mouse);
-      startSel = doc.sel;
+      setSelection(doc$1, new Selection([ourRange], 0), sel_mouse);
+      startSel = doc$1.sel;
     } else if (ourIndex == -1) {
       ourIndex = ranges.length;
-      setSelection(doc, normalizeSelection(cm, ranges.concat([ourRange]), ourIndex),
+      setSelection(doc$1, normalizeSelection(cm, ranges.concat([ourRange]), ourIndex),
                    {scroll: false, origin: "*mouse"});
     } else if (ranges.length > 1 && ranges[ourIndex].empty() && behavior.unit == "char" && !behavior.extend) {
-      setSelection(doc, normalizeSelection(cm, ranges.slice(0, ourIndex).concat(ranges.slice(ourIndex + 1)), 0),
+      setSelection(doc$1, normalizeSelection(cm, ranges.slice(0, ourIndex).concat(ranges.slice(ourIndex + 1)), 0),
                    {scroll: false, origin: "*mouse"});
-      startSel = doc.sel;
+      startSel = doc$1.sel;
     } else {
-      replaceOneSelection(doc, ourIndex, ourRange, sel_mouse);
+      replaceOneSelection(doc$1, ourIndex, ourRange, sel_mouse);
     }
 
     var lastPos = start;
@@ -7541,19 +7547,19 @@ var nameKey; //added by chromo
 
       if (behavior.unit == "rectangle") {
         var ranges = [], tabSize = cm.options.tabSize;
-        var startCol = countColumn(getLine(doc, start.line).text, start.ch, tabSize);
-        var posCol = countColumn(getLine(doc, pos.line).text, pos.ch, tabSize);
+        var startCol = countColumn(getLine(doc$1, start.line).text, start.ch, tabSize);
+        var posCol = countColumn(getLine(doc$1, pos.line).text, pos.ch, tabSize);
         var left = Math.min(startCol, posCol), right = Math.max(startCol, posCol);
         for (var line = Math.min(start.line, pos.line), end = Math.min(cm.lastLine(), Math.max(start.line, pos.line));
              line <= end; line++) {
-          var text = getLine(doc, line).text, leftPos = findColumn(text, left, tabSize);
+          var text = getLine(doc$1, line).text, leftPos = findColumn(text, left, tabSize);
           if (left == right)
             { ranges.push(new Range(Pos(line, leftPos), Pos(line, leftPos))); }
           else if (text.length > leftPos)
             { ranges.push(new Range(Pos(line, leftPos), Pos(line, findColumn(text, right, tabSize)))); }
         }
         if (!ranges.length) { ranges.push(new Range(start, start)); }
-        setSelection(doc, normalizeSelection(cm, startSel.ranges.slice(0, ourIndex).concat(ranges), ourIndex),
+        setSelection(doc$1, normalizeSelection(cm, startSel.ranges.slice(0, ourIndex).concat(ranges), ourIndex),
                      {origin: "*mouse", scroll: false});
         cm.scrollIntoView(pos);
       } else {
@@ -7568,8 +7574,8 @@ var nameKey; //added by chromo
           anchor = maxPos(oldRange.to(), range.head);
         }
         var ranges$1 = startSel.ranges.slice(0);
-        ranges$1[ourIndex] = bidiSimplify(cm, new Range(clipPos(doc, anchor), head));
-        setSelection(doc, normalizeSelection(cm, ranges$1, ourIndex), sel_mouse);
+        ranges$1[ourIndex] = bidiSimplify(cm, new Range(clipPos(doc$1, anchor), head));
+        setSelection(doc$1, normalizeSelection(cm, ranges$1, ourIndex), sel_mouse);
       }
     }
 
@@ -7585,9 +7591,9 @@ var nameKey; //added by chromo
       var cur = posFromMouse(cm, e, true, behavior.unit == "rectangle");
       if (!cur) { return }
       if (cmp(cur, lastPos) != 0) {
-        cm.curOp.focus = activeElt();
+        cm.curOp.focus = activeElt(doc(cm));
         extendTo(cur);
-        var visible = visibleLines(display, doc);
+        var visible = visibleLines(display, doc$1);
         if (cur.line >= visible.to || cur.line < visible.from)
           { setTimeout(operation(cm, function () {if (counter == curCount) { extend(e); }}), 150); }
       } else {
@@ -7612,7 +7618,7 @@ var nameKey; //added by chromo
       }
       off(display.wrapper.ownerDocument, "mousemove", move);
       off(display.wrapper.ownerDocument, "mouseup", up);
-      doc.history.lastSelOrigin = null;
+      doc$1.history.lastSelOrigin = null;
     }
 
     var move = operation(cm, function (e) {
@@ -8289,7 +8295,7 @@ var nameKey; //added by chromo
 
     CodeMirror.prototype = {
       constructor: CodeMirror,
-      focus: function(){window.focus(); this.display.input.focus();},
+      focus: function(){win(this).focus(); this.display.input.focus();},
 
       setOption: function(option, value) {
         var options = this.options, old = options[option];
@@ -8613,7 +8619,7 @@ var nameKey; //added by chromo
 
         signal(this, "overwriteToggle", this, this.state.overwrite);
       },
-      hasFocus: function() { return this.display.input.getField() == activeElt() },
+      hasFocus: function() { return this.display.input.getField() == activeElt(doc(this)) },
       isReadOnly: function() { return !!(this.options.readOnly || this.doc.cantEdit) },
 
       scrollTo: methodOp(function (x, y) { scrollToCoords(this, x, y); }),
@@ -8794,7 +8800,7 @@ var nameKey; //added by chromo
   function findPosV(cm, pos, dir, unit) {
     var doc = cm.doc, x = pos.left, y;
     if (unit == "page") {
-      var pageSize = Math.min(cm.display.wrapper.clientHeight, window.innerHeight || document.documentElement.clientHeight);
+      var pageSize = Math.min(cm.display.wrapper.clientHeight, win(cm).innerHeight || doc(cm).documentElement.clientHeight);
       var moveAmount = Math.max(pageSize - .5 * textHeight(cm.display), 3);
       y = (dir > 0 ? pos.bottom : pos.top) + dir * moveAmount;
 
@@ -8894,7 +8900,7 @@ var nameKey; //added by chromo
       var kludge = hiddenTextarea(), te = kludge.firstChild;
       cm.display.lineSpace.insertBefore(kludge, cm.display.lineSpace.firstChild);
       te.value = lastCopied.text.join("\n");
-      var hadFocus = activeElt();
+      var hadFocus = activeElt(div.ownerDocument);
       selectInput(te);
       setTimeout(function () {
         cm.display.lineSpace.removeChild(kludge);
@@ -8917,7 +8923,7 @@ var nameKey; //added by chromo
 
   ContentEditableInput.prototype.prepareSelection = function () {
     var result = prepareSelection(this.cm, false);
-    result.focus = activeElt() == this.div;
+    result.focus = activeElt(this.div.ownerDocument) == this.div;
     return result
   };
 
@@ -9013,7 +9019,7 @@ var nameKey; //added by chromo
 
   ContentEditableInput.prototype.focus = function () {
     if (this.cm.options.readOnly != "nocursor") {
-      if (!this.selectionInEditor() || activeElt() != this.div)
+      if (!this.selectionInEditor() || activeElt(this.div.ownerDocument) != this.div)
         { this.showSelection(this.prepareSelection(), true); }
       this.div.focus();
     }
@@ -9516,7 +9522,7 @@ var nameKey; //added by chromo
   TextareaInput.prototype.supportsTouch = function () { return false };
 
   TextareaInput.prototype.focus = function () {
-    if (this.cm.options.readOnly != "nocursor" && (!mobile || activeElt() != this.textarea)) {
+    if (this.cm.options.readOnly != "nocursor" && (!mobile || activeElt(this.textarea.ownerDocument) != this.textarea)) {
       try { this.textarea.focus(); }
       catch (e) {} // IE8 will throw if the textarea is display: none or not in DOM
     }
@@ -9639,9 +9645,9 @@ var nameKey; //added by chromo
     input.wrapper.style.cssText = "position: static";
     te.style.cssText = "position: absolute; width: 30px; height: 30px;\n      top: " + (e.clientY - wrapperBox.top - 5) + "px; left: " + (e.clientX - wrapperBox.left - 5) + "px;\n      z-index: 1000; background: " + (ie ? "rgba(255, 255, 255, .05)" : "transparent") + ";\n      outline: none; border-width: 0; outline: none; overflow: hidden; opacity: .05; filter: alpha(opacity=5);";
     var oldScrollY;
-    if (webkit) { oldScrollY = window.scrollY; } // Work around Chrome issue (#2712)
+    if (webkit) { oldScrollY = te.ownerDocument.defaultView.scrollY; } // Work around Chrome issue (#2712)
     display.input.focus();
-    if (webkit) { window.scrollTo(null, oldScrollY); }
+    if (webkit) { te.ownerDocument.defaultView.scrollTo(null, oldScrollY); }
     display.input.reset();
     // Adds "Select all" to context menu in FF
     if (!cm.somethingSelected()) { te.value = input.prevInput = " "; }
@@ -9723,7 +9729,7 @@ var nameKey; //added by chromo
     // Set autofocus to true if this textarea is focused, or if it has
     // autofocus and no other element is focused.
     if (options.autofocus == null) {
-      var hasFocus = activeElt();
+      var hasFocus = activeElt(textarea.ownerDocument);
       options.autofocus = hasFocus == textarea ||
         textarea.getAttribute("autofocus") != null && hasFocus == document.body;
     }
@@ -9857,7 +9863,7 @@ var nameKey; //added by chromo
 
   addLegacyProps(CodeMirror);
 
-  CodeMirror.version = "5.65.5";
+  CodeMirror.version = "5.65.7";
 
   return CodeMirror;
 
