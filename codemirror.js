@@ -7,7 +7,7 @@
 // You can find some technical background for some of the code below
 // at http://marijnhaverbeke.nl/blog/#cm-internals .
 
-var nameKey; //added by chromo
+var nameKey; //added by chromoxdor
 
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -7239,7 +7239,8 @@ var nameKey; //added by chromo
   // Handle a key from the keydown event.
   function handleKeyBinding(cm, e) {
     var name = keyName(e, true);
-    nameKey = name; //added by chromo
+    nameKey = name; //added by chromoxdor
+    console.log(nameKey);
     if (!name) { return false }
 
     if (e.shiftKey && !cm.state.keySeq) {

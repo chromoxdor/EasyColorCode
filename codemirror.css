@@ -813,5 +813,5 @@ li.CodeMirror-hint-active {
 }
 
 span.CodeMirror-search-hint {
-  font-size: 12px;
+  display: none;
 }
