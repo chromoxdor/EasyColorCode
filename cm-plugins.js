@@ -462,9 +462,8 @@ var isSame;
       var numCharA,numCharB;
       numCharA = rEdit.getCursor().ch;
       numCharB = rEdit.getCursor().ch - this.data.list[0].length;
-      console.log("ch",rEdit.getCursor().ch, "-length" ,this.data.list[0].length, "=numB",numCharB);
       if (numCharA === 1) { Xspace = ''; }
-      else { Xspace = ' '.repeat(numCharA - 2); if (numCharB>0) Xspace2 = ' '.repeat(numCharB); }
+      else { Xspace = ' '.repeat(numCharA - 2); if (numCharB>0) Xspace2 = ' '.repeat(numCharB); else Xspace2='';}
 
       if (isSame && nameKey === 'Space') {
         if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' '; }
