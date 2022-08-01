@@ -458,11 +458,13 @@ var isSame;
     pick: function () {
       //autocorrect with space key and add a whitespace after the word + autocompletion
       var whatisIt;
-      var Xspace;
-      var numCharA;
+      var Xspace,Xspace2;
+      var numCharA,numCharB;
       numCharA = rEdit.getCursor().ch;
+      numCharB = rEdit.getCursor().ch - this.data.list[0].length;
+      console.log("ch",rEdit.getCursor().ch, "-length" ,this.data.list[0].length, "=numB",numCharB);
       if (numCharA === 1) { Xspace = ''; }
-      else { Xspace = ' '.repeat(numCharA - 2); }
+      else { Xspace = ' '.repeat(numCharA - 2); if (numCharB>0) Xspace2 = ' '.repeat(numCharB); }
 
       if (isSame && nameKey === 'Space') {
         if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' '; }
@@ -473,7 +475,7 @@ var isSame;
         //else if (this.data.list[0] === 'On') { this.data.list[0] = this.data.list[0] + '  Do' + '\n\n' + Xspace + 'Endon'; whatisIt = 2; }
         else if (this.data.list[0] === 'On') { this.data.list[0] = this.data.list[0] + '  Do' + '\n\n' + 'Endon'; whatisIt = 2; }
         else if (this.data.list[0] === 'Do') { this.data.list[0] = this.data.list[0] + '\n\n' + 'Endon'; whatisIt = 2.2; }
-        else { this.data.list[0] = this.data.list[0] + '\n'; whatisIt = 0; }
+        else { this.data.list[0] = this.data.list[0] + '\n'+ Xspace2; whatisIt = 0; }
         isSame = false;
       }
       if (this.data.list[this.selectedHint] === 'LogEntry') { this.data.list[this.selectedHint] = this.data.list[this.selectedHint] + ',\'\''; whatisIt = 3; }

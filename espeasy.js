@@ -313,7 +313,7 @@ function initCM() {
       token: function (stream, state) {
         return tokenize(stream, state);
       },
-      electricInput: /^\s*(\bendon\b)/i, //extra
+      //electricInput: /^\s*(\bendon\b)/i, //extra
       closeBrackets: "[]{}''\"\"``()",
       lineComment: '//',
       fold: "brace"
