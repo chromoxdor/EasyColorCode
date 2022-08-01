@@ -128,6 +128,30 @@ var EXTRAWORDS = commonAtoms.concat(commonPlugins, commonKeywords, commonCommand
 
 var rEdit;
 function initCM() {
+  var onlongtouch;
+  var timer;
+  var touchduration = 800; //length of time we want the user to touch before we do something
+
+  function touchstart(e) {
+    if (!timer) {
+      timer = setTimeout(onlongtouch, touchduration);
+    }
+  }
+  function touchend() {
+    //stops short touches from firing the event
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  }
+  onlongtouch = function () {
+    timer = null;
+    rEdit.execCommand('replace');
+  };
+  document.addEventListener("DOMContentLoaded", function (event) {
+    window.addEventListener("touchstart", touchstart, false);
+    window.addEventListener("touchend", touchend, false);
+  });
   CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
   rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
     tabSize: 2, indentWithTabs: false, lineNumbers: true, autoCloseBrackets: true,
