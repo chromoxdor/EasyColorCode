@@ -763,12 +763,17 @@ li.CodeMirror-hint-active {
     border: 1px solid silver;
     background: #444;
   }
+  .CodeMirror-dialog button {
+    background-color: #44607a !important;
+  }
 }
 
 /* dialog.css*/
 
 .CodeMirror-dialog {
+  font-size: 18px;
   position: fixed;
+  height: 40px;
   left: 0; right: 0;
   background: inherit;
   z-index: 15;
@@ -778,7 +783,7 @@ li.CodeMirror-hint-active {
 }
 
 .CodeMirror-dialog-top {
-  border-bottom: 1px solid #eee;
+  border-bottom: 0.5px solid #444;
   top: 0;
 }
 
@@ -794,8 +799,16 @@ li.CodeMirror-hint-active {
   width: 20em;
   color: inherit;
   font-family: monospace;
+  font-size: 18px;
 }
 
 .CodeMirror-dialog button {
-  font-size: 70%;
+    background: #444444;
+    background-color: #07d;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    margin: 4px;
+    padding: 4px 16px;
 }
+
