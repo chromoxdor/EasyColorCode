@@ -781,6 +781,11 @@ li.CodeMirror-hint-active {
   padding: .1em .8em;
   overflow: hidden;
   color: inherit;
+  animation: fadein 1s;
+}
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .CodeMirror-dialog-top {
