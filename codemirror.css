@@ -797,7 +797,7 @@ li.CodeMirror-hint-active {
   border: none;
   outline: none;
   background: transparent;
-  width: 40% !important;
+  width: 75% !important;
   color: inherit;
   font-family: monospace;
 }
