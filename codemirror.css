@@ -775,7 +775,7 @@ li.CodeMirror-hint-active {
   position: fixed;
   height: 40px;
   left: 0;
-  right: 0;
+  width: 100vw;
   background: inherit;
   z-index: 15;
   padding: .1em .8em;
