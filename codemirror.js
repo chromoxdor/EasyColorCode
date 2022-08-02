@@ -7240,7 +7240,6 @@ var nameKey; //added by chromoxdor
   function handleKeyBinding(cm, e) {
     var name = keyName(e, true);
     nameKey = name; //added by chromoxdor
-    console.log(nameKey);
     if (!name) { return false }
 
     if (e.shiftKey && !cm.state.keySeq) {
