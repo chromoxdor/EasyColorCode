@@ -17,14 +17,14 @@ var isSame;
   CodeMirror.registerHelper("hint", "anyword", function (editor, options) {
     var word = options && options.word || WORD;
     var range = options && options.range || RANGE;
-    var extraWords = options && options.extraWords || EXTRAWORDS;
+    var extraWords = options && options.extraWords || EXTRAWORDS;  //CXD
     var cur = editor.getCursor(), curLine = editor.getLine(cur.line);
     var end = cur.ch, start = end;
     while (start && word.test(curLine.charAt(start - 1))) --start;
     var curWord = start != end && curLine.slice(start, end);
     if (curWord) { curWord = curWord.toLowerCase(); }
     //autocorrect with space key and add a whitespace after the word
-    //look if the typed word is in the extraWord list
+    //look if the typed word is in the extraWord list CXD
     isSame = extraWords.some(element => {
       return element.toLowerCase() === curWord;
     });
@@ -34,10 +34,11 @@ var isSame;
       var line = cur.line, endLine = Math.min(Math.max(line + dir * range, editor.firstLine()), editor.lastLine()) + dir;
       for (; line != endLine; line += dir) {
         var text = editor.getLine(line), m;
-        text = text.replace(/\/{2}.*/g, ''); //filter out comments
-        text = text.replace(/(=|-|\+|\*|<|>)\d+/g, ''); //filter out numbers
+        text = text.replace(/\/{2}.*/g, ''); //filter out comments CXD
+        text = text.replace(/(=|-|\+|\*|<|>)\d+/g, ''); //filter out numbers CXD
         var replaceK = text.match(/\w+(?:,(\S+)){2}/);
-        if (replaceK) text = text.replace(replaceK[1], ''); //filter out everything after second comma
+        if (replaceK) {text = text.replace(replaceK[1], ' ' + replaceK[1]);} //filter out everything after second comma
+        //and put a space between CXD
         while (m = re.exec(text)) {
           if (line == cur.line && m[0].toLowerCase() === curWord) continue;
           if ((!curWord || m[0].toLowerCase().lastIndexOf(curWord, 0) == 0) && !Object.prototype.hasOwnProperty.call(seen, m[0])) {
@@ -246,7 +247,7 @@ var isSame;
       Esc: handle.close
     };
     var mac = /Mac/.test(navigator.platform);
-    //autocorrect with space key and add a whitespace after the word
+    //autocorrect with space key and add a whitespace after the word CXD
     if (isSame) {
       baseMap["Space"] = handle.pick;
     }
@@ -456,14 +457,14 @@ var isSame;
     },
 
     pick: function () {
-      //autocorrect with space key and add a whitespace after the word + autocompletion
+      //autocorrect with space key and add a whitespace after the word + autocompletion  CXD
       var whatisIt;
-      var Xspace,Xspace2;
-      var numCharA,numCharB;
+      var Xspace, Xspace2;
+      var numCharA, numCharB;
       numCharA = rEdit.getCursor().ch;
       numCharB = rEdit.getCursor().ch - this.data.list[0].length;
-      if (numCharA === 1) { Xspace = ''; }
-      else { Xspace = ' '.repeat(numCharA - 2); if (numCharB>0) Xspace2 = ' '.repeat(numCharB); else Xspace2='';}
+      if (numCharA === 1 || numCharA === 0) { Xspace = ''; }
+      else { Xspace = ' '.repeat(numCharA - 2); if (numCharB > 0) Xspace2 = ' '.repeat(numCharB); else Xspace2 = ''; }
 
       if (isSame && nameKey === 'Space') {
         if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' '; }
@@ -474,14 +475,14 @@ var isSame;
         //else if (this.data.list[0] === 'On') { this.data.list[0] = this.data.list[0] + '  Do' + '\n\n' + Xspace + 'Endon'; whatisIt = 2; }
         else if (this.data.list[0] === 'On') { this.data.list[0] = this.data.list[0] + '  Do' + '\n\n' + 'Endon'; whatisIt = 2; }
         else if (this.data.list[0] === 'Do') { this.data.list[0] = this.data.list[0] + '\n\n' + 'Endon'; whatisIt = 2.2; }
-        else { this.data.list[0] = this.data.list[0] + '\n'+ Xspace2; whatisIt = 0; }
+        else { this.data.list[0] = this.data.list[0] + '\n' + Xspace2; whatisIt = 0; }
         isSame = false;
       }
       if (this.data.list[this.selectedHint] === 'LogEntry') { this.data.list[this.selectedHint] = this.data.list[this.selectedHint] + ',\'\''; whatisIt = 3; }
       //else if (this.data.list[this.selectedHint] === 'If') { if (numCharA > 1) { Xspace = Xspace + ' '; } this.data.list[this.selectedHint] = this.data.list[this.selectedHint] + ' ' + '\n' + Xspace+ '\n' + Xspace + 'Endif'; whatisIt = 1; }
 
       this.completion.pick(this.data, this.selectedHint);
-      //autocompletion addition
+      //autocompletion addition CXD
       var numLine = rEdit.getCursor().line
       var numChar = rEdit.getCursor().ch
       if (whatisIt === 1) { rEdit.setCursor({ line: numLine - 1 }) }
