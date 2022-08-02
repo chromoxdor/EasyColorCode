@@ -130,7 +130,7 @@ var rEdit;
 function initCM() {
   var onlongtouch;
   var timer;
-  var touchduration = 800; //length of time we want the user to touch before we do something
+  var touchduration = 800; 
 
   function touchstart(e) {
     if (!timer) {
@@ -138,7 +138,6 @@ function initCM() {
     }
   }
   function touchend() {
-    //stops short touches from firing the event
     if (timer) {
       clearTimeout(timer);
       timer = null;
