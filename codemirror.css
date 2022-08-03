@@ -536,8 +536,7 @@ div.CodeMirror-dragcursors {
 }
 
 .cm-searching {
-  background-color: #ffa;
-  background-color: rgba(255, 255, 0, .4);
+  background-color: rgba(162, 162, 162, 0.396);
 }
 
 /* Used to force a border model for a node */
@@ -767,6 +766,11 @@ li.CodeMirror-hint-active {
   .CodeMirror-dialog button {
     background-color: #44607a !important;
   }
+
+  .CodeMirror-dialog input {
+    background: #444444 !important;
+    color: #eee !important;
+  }
 }
 
 /* dialog.css*/
@@ -781,6 +785,12 @@ li.CodeMirror-hint-active {
   padding: .1em .8em;
   overflow: hidden;
   color: inherit;
+  display: flex;
+  align-items: center;
+}
+.CodeMirror-dialog input::selection {
+  color: rgb(255, 255, 255);
+  background: rgb(118, 69, 231);
 }
 
 .CodeMirror-dialog-top {
@@ -794,12 +804,14 @@ li.CodeMirror-hint-active {
 }
 
 .CodeMirror-dialog input {
-  border: none;
-  outline: none;
-  background: transparent;
   width: 50vw !important;
-  color: inherit;
+  color: black;
   font-family: monospace;
+  background: #eee;
+  border-style: solid;
+  border-width: 1px;
+  border-color: gray;
+  border-radius: 5px;
 }
 
 .CodeMirror-dialog button {
