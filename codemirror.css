@@ -812,6 +812,7 @@ li.CodeMirror-hint-active {
   border-width: 1px;
   border-color: gray;
   border-radius: 5px;
+  height: 28px;
 }
 
 .CodeMirror-dialog button {
