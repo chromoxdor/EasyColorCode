@@ -777,7 +777,7 @@ li.CodeMirror-hint-active {
 
 .CodeMirror-dialog {
   position: fixed;
-  height: 40px;
+  height: 42px;
   left: 0;
   width: 100vw;
   background: inherit;
