@@ -209,7 +209,7 @@
     @media screen and (max-width: 799px) {
       div#framie {
         position: absolute;
-        padding-left: 0px;
+        padding-left: 0px !important;
       }
     }
 
@@ -219,8 +219,8 @@
         white-space: nowrap;
       }
 
-      div#framie {
-        padding-bottom: 40px;
+      body {
+        align-items: flex-start;
       }
     }
   </style>
@@ -283,7 +283,8 @@
       </div>
       <div class="menueItem">
         <div class="shortcut">
-          <div class="subtext">more shortcuts can be found <a class="link" href="https://defkey.com/codemirror-shortcuts" target="_blank">here</a>
+          <div class="subtext">more shortcuts can be found <a class="link"
+              href="https://defkey.com/codemirror-shortcuts" target="_blank">here</a>
           </div>
         </div>
       </div>
@@ -340,7 +341,7 @@
 
     function textI() { console.log("text"); rEdit.replaceSelection('On Do \nEndon'); rEdit.execCommand('Up'); rEdit.execCommand('Enter') }
     initCM();
-    CodeMirror.commands.save = function(editor) {
+    CodeMirror.commands.save = function (editor) {
       var textToWrite = editor.getValue();
       var textFileAsBlob = new Blob([textToWrite], {
         type: "text/plain;charset=utf-8"
@@ -364,7 +365,7 @@
       }
 
       downloadLink.click();
-};
+    };
   </script>
 </body>
 
