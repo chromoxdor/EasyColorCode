@@ -29,10 +29,32 @@
       box-sizing: border-box;
     }
 
+    .CodeMirror {
+      border-radius: 0px 0px 10px 10px;
+    }
+
+    div#framie {
+      height: 100%;
+      transition: 0.8s;
+      padding-bottom: 60px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0px;
+      transition: 2s;
+      background-color: white;
+      box-shadow: 4px 0px 13px -7px #000000;
+    }
+
     #container {
-      padding: 40px 20px;
+      width: 650px;
+      padding-top: 2em;
       background: #f0f0f0;
       box-shadow: 0px 0px 15px 5px rgb(0 0 0 / 29%);
+      overflow: hidden;
+      border-radius: 10px;
     }
 
     h1 {
@@ -58,68 +80,262 @@
       padding: 10px;
       font-size: 20px;
     }
+
+    .shortcut {
+      font-size: 20px;
+    }
+
+    .subtext {
+      font-size: 14px;
+    }
+
+    .sidenav {
+      height: 71vh;
+      padding: 4vw 0 3vw 0;
+      min-width: 0;
+      width: 0;
+      transition: 0.8s;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      cursor: pointer;
+      overflow: scroll;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      overflow-y: scroll;
+      background-image: linear-gradient(#45607a 0%, #ff000000 5%, #ff000000 95%, #45607a 100%);
+    }
+
+    .sidenav::-webkit-scrollbar {
+      display: none;
+      /* for Chrome, Safari, and Opera */
+    }
+
+    #scrolldown {
+      position: fixed;
+      padding-left: 3%;
+      top: 85vh;
+      transition: 0.2s;
+      font-size: 30px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
+    #menueList {
+      transition: 0.2s;
+      z-index: -1;
+    }
+
+    .sidenav div {
+      width: 235px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .menueItem {
+      padding: 10px;
+    }
+
+    #opener {
+      bottom: 0;
+      z-index: 2;
+      height: 60px;
+      width: 100%;
+      position: fixed;
+      padding-top: 10px;
+    }
+
+    .open {
+      background: none;
+      display: flex;
+      max-width: 200px;
+      align-items: center;
+      margin: auto;
+      justify-content: space-between;
+    }
+
+    .msym {
+      position: relative;
+      height: 35px;
+      width: 35px;
+      background-color: #f0f0f0;
+      border-radius: 50%;
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      font-size: 30px;
+      cursor: pointer;
+      justify-content: center;
+      box-shadow: 0px 0px 15px 5px rgb(0 0 0 / 29%);
+      transition-duration: 0.4s;
+      -webkit-transition-duration: 0.4s;
+      /* Safari */
+    }
+
+
+    .msym:after {
+      content: "";
+      display: block;
+      position: absolute;
+      border-radius: 50%;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: all 0.5s;
+      box-shadow: 0 0 10px 20px rgb(255, 255, 255);
+    }
+
+    .msym:active:after {
+      box-shadow: 0 0 0 0 rgb(255, 255, 255);
+      position: absolute;
+      border-radius: 50%;
+      left: 0;
+      top: 0;
+      opacity: 1;
+      transition: 0s;
+    }
+
+    .msym:active {
+      top: 1px;
+    }
+
+    #menueList {
+      color: transparent;
+    }
+
+    @media screen and (max-width: 799px) {
+      div#framie {
+        position: absolute;
+        padding-left: 0px;
+      }
+    }
+
+    @media screen and (max-width: 450px) {
+      h1 {
+        font-size: 18px;
+        white-space: nowrap;
+      }
+
+      div#framie {
+        padding-bottom: 40px;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <div id="mySidenav" class="sidenav">
+    <div id="menueList">
+      <div id="scrolldown">&#9660;</div>
+      <div class="menueItem">
+        <div class="shortcut">Type "on" then Enter <div class="subtext">Autocomplete the Rules Block (you can also
+            complete after "do" + Enter)</div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">Type "if" then Enter<div class="subtext">Autocompletes the if statement</div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">Ctrl+Shift<div class="subtext">Opens the list of hints</div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">Tab<div class="subtext">If something is selected, indent it by one indent unit. If nothing
+            is selected, insert space</div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">Shift+Tab<div class="subtext">Dedent the current line or selection by one indent unit
+          </div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">Ctrl+D / Cmd+D<div class="subtext">Delete line under cursor</div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">Ctrl+F / Cmd+F<div class="subtext">Find</div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">Ctrl+G / Cmd+G<div class="subtext">Find next</div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">Shift+Ctrl+G / Shift+Cmd+G<div class="subtext">Find previous</div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">Shift+Ctrl+F / Cmd+Option+F<div class="subtext">Replace</div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">Shift+Ctrl+R / Shift+Cmd+Option+F<div class="subtext">Replace all</div>
+        </div>
+      </div>
+      <div class="menueItem">
+        <div class="shortcut">
+          <div class="subtext">more shortcuts can be found <a href="https://defkey.com/codemirror-shortcuts">here</a></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
   <div id="container">
-    <h1>ESPEasy Code Highlighting Demo</h1>
+    <h1>ESPEasy Code Editor</h1>
     <textarea placeholder="Type your text here..." id="rules"></textarea>
   </div>
-  <script type="text/javascript">
-    var onlongtouch;
-    var timer;
-    var touchduration = 800;
+  <div id="framie"></div>
+  <div id="opener">
+    <div class="open">
+      <span class="msym" onclick="openNav()">?</span>
+      <span class="msym" onclick="splitOn(); topF()">i</span>
+    </div>
+  </div>
+  <script>
+    function openNav() {
+      if (document.getElementById('mySidenav').offsetWidth === 0) {
+        document.getElementById("menueList").style.transitionDelay = "0.5s";
+        document.getElementById("mySidenav").style.minWidth = "280px";
+        //document.getElementById("scrolldown").style.color = "white";
+        //document.getElementById("scrolldown").style.transitionDelay = "0.5s";
+        document.getElementById("menueList").style.color = "white";
 
-    function touchstart(e) {
-      if (!timer) {
-        timer = setTimeout(onlongtouch, touchduration);
-      }
+      } else { closeNav(); }
     }
-    function touchend() {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
+    function closeNav() {
+      document.getElementById("menueList").style.transitionDelay = "0s";
+      document.getElementById("mySidenav").style.minWidth = "0";
+      //document.getElementById("scrolldown").style.color = "transparent";
+      //document.getElementById("scrolldown").style.transitionDelay = "0s";
+      document.getElementById("menueList").style.color = "transparent";
+      topF();
+
     }
-    onlongtouch = function () {
-      timer = null;
-      rEdit.execCommand('replace');
-    };
-    document.addEventListener("DOMContentLoaded", function (event) {
-      window.addEventListener("touchstart", touchstart, false);
-      window.addEventListener("touchend", touchend, false);
-    });
-    CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
-    rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
-      tabSize: 2, indentWithTabs: false, lineNumbers: true, autoCloseBrackets: true,
-      extraKeys: {
-        'Ctrl-Space': 'autocomplete',
-        Tab: (cm) => {
-          if (cm.getMode().name === 'null') {
-            cm.execCommand('insertTab');
-          } else {
-            if (cm.somethingSelected()) {
-              cm.execCommand('indentMore');
-            } else {
-              cm.execCommand('insertSoftTab');
-            }
-          }
-        },
-        'Shift-Tab': (cm) => cm.execCommand('indentLess'),
-      }
-    });
-    rEdit.on('change', function () { rEdit.save() });
-    //hinting on input
-    rEdit.on("inputRead", function (cm, event) {
-      var letters = /[\w%,#]/; //characters for activation
-      var cur = cm.getCursor();
-      var token = cm.getTokenAt(cur);
-      if (letters.test(event.text) && token.type != "comment") {
-        cm.showHint({ completeSingle: false });
-      };
-    });
-    //initCM();
+    /*document.addEventListener("mousedown", function (event) {
+      if (document.getElementById('mySidenav').offsetWidth > 0)
+        closeNav();
+    });*/
+    /*document.addEventListener("touchstart", function (event) {
+      if (document.getElementById('mySidenav').offsetWidth > 0)
+        closeNav();
+    });*/
+
+    function splitOn() {
+      if (document.getElementById('framie').offsetWidth <= 10) { isOpen = 1; iFr(isOpen); document.getElementById('framie').style.width = "100%"; document.getElementById('framie').style.paddingLeft = "10px"; }
+      else { document.getElementById('framie').style.width = "0"; document.getElementById('framie').innerHTML = ""; isOpen = 0; document.getElementById('framie').style.paddingLeft = "0px"; }
+    }
+    function iFr() { if (isOpen === 1) { document.getElementById('framie').innerHTML = '<iframe src="https://espeasy.readthedocs.io/en/latest/Rules/Rules.html"></iframe>'; closeNav(); } }
+    function topF() { document.getElementById('mySidenav').scrollTo({ top: 0, behavior: 'smooth' }); document.body.scrollTop = 0; document.documentElement.scrollTop = 0; }
+
+    function textI() { console.log("text"); rEdit.replaceSelection('On Do \nEndon'); rEdit.execCommand('Up'); rEdit.execCommand('Enter') }
+    initCM();
   </script>
 </body>
 
