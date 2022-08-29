@@ -245,6 +245,10 @@
         </div>
       </div>
       <div class="menueItem">
+        <div class="shortcut">Ctrl+S / Cmd+S<div class="subtext">Save content as textfile</div>
+        </div>
+      </div>
+      <div class="menueItem">
         <div class="shortcut">Tab<div class="subtext">If something is selected, indent it by one indent unit. If nothing
             is selected, insert space</div>
         </div>
@@ -280,7 +284,8 @@
       </div>
       <div class="menueItem">
         <div class="shortcut">
-          <div class="subtext">more shortcuts can be found <a href="https://defkey.com/codemirror-shortcuts">here</a></div>
+          <div class="subtext">more shortcuts can be found <a href="https://defkey.com/codemirror-shortcuts">here</a>
+          </div>
         </div>
       </div>
 
@@ -336,6 +341,31 @@
 
     function textI() { console.log("text"); rEdit.replaceSelection('On Do \nEndon'); rEdit.execCommand('Up'); rEdit.execCommand('Enter') }
     initCM();
+    CodeMirror.commands.save = function(editor) {
+      var textToWrite = editor.getValue();
+      var textFileAsBlob = new Blob([textToWrite], {
+        type: "text/plain;charset=utf-8"
+      });
+      var fileNameToSaveAs = "myfile.txt";
+
+      var downloadLink = document.createElement("a");
+      downloadLink.download = fileNameToSaveAs;
+      downloadLink.innerHTML = "Download File";
+      if (window.webkitURL != null) {
+        // Chrome allows the link to be clicked
+        // without actually adding it to the DOM.
+        downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+      } else {
+        // Firefox requires the link to be added to the DOM
+        // before it can be clicked.
+        downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+        downloadLink.onclick = destroyClickedElement;
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+      }
+
+      downloadLink.click();
+};
   </script>
 </body>
 
