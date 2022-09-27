@@ -161,6 +161,16 @@ function initCM() {
     window.addEventListener("touchstart", touchstart, false);
     window.addEventListener("touchend", touchend, false);
   });*/
+  var confirmR=true
+  var android = /Android/.test(navigator.userAgent);
+  if (android){ 
+    if (confirm("Do you want to enable colored rules")) {
+      confirmR=true
+    } else {
+      confirmR=false
+    }
+  }
+  if (confirmR){
   CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
   rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
     tabSize: 2, indentWithTabs: false, lineNumbers: true, autoCloseBrackets: true,
@@ -190,6 +200,7 @@ function initCM() {
       cm.showHint({ completeSingle: false });
     };
   });
+}
 }
 
 
@@ -318,8 +329,12 @@ function initCM() {
       }
 
       if (ch == "%") {
+        //stream.next();
+        if (/\d/.test(stream.next())) {return 'number';}
+        else {
         stream.eatWhile(/[^\s\%]/);
         if (stream.match("%")) return 'hr';
+        }
       }
 
       if (ch == "[") {
