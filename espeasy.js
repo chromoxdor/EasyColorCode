@@ -73,6 +73,8 @@ var commonPlugins = [
   "WakeOnLan",
   //P104
   "DotMatrix", "DotMatrix,clear", "DotMatrix,update", "DotMatrix,size", "DotMatrix,txt", "DotMatrix,settxt", "DotMatrix,content", "DotMatrix,alignment", "DotMatrix,anim.in", "DotMatrix,anim.out", "DotMatrix,speed", "DotMatrix,pause", "DotMatrix,font", "DotMatrix,layout", "DotMatrix,inverted", "DotMatrix,specialeffect", "DotMatrix,offset", "DotMatrix,brightness", "DotMatrix,repeat", "DotMatrix,setbar", "DotMatrix,bar",
+  //P109
+  "Thermo", "Thermo,Up", "Thermo,Down", "Thermo,Mode", "Thermo,ModeBtn", "Thermo,Setpoint",
   //P115
   "Max1704xclearalert",
   //P116
@@ -141,7 +143,6 @@ function initCM() {
   /*var onlongtouch;
   var timer;
   var touchduration = 800; 
-
   function touchstart(e) {
     if (!timer) {
       timer = setTimeout(onlongtouch, touchduration);
@@ -161,47 +162,48 @@ function initCM() {
     window.addEventListener("touchstart", touchstart, false);
     window.addEventListener("touchend", touchend, false);
   });*/
-  var confirmR=true
+  var confirmR = true
   var android = /Android/.test(navigator.userAgent);
-  if (android){ 
+  if (android) {
     if (confirm("Do you want to enable colored rules")) {
-      confirmR=true
+      confirmR = true
     } else {
-      confirmR=false
+      confirmR = false
     }
   }
-  if (confirmR){
-  CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
-  rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
-    tabSize: 2, indentWithTabs: false, lineNumbers: true, autoCloseBrackets: true,
-    extraKeys: {
-      'Ctrl-Space': 'autocomplete',
-      Tab: (cm) => {
-        if (cm.getMode().name === 'null') {
-          cm.execCommand('insertTab');
-        } else {
-          if (cm.somethingSelected()) {
-            cm.execCommand('indentMore');
+  if (confirmR) {
+    CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
+    rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
+      tabSize: 2, indentWithTabs: false, lineNumbers: true, autoCloseBrackets: true,
+      extraKeys: {
+        'Ctrl-Space': 'autocomplete',
+        Tab: (cm) => {
+          if (cm.getMode().name === 'null') {
+            cm.execCommand('insertTab');
           } else {
-            cm.execCommand('insertSoftTab');
+            if (cm.somethingSelected()) {
+              cm.execCommand('indentMore');
+            } else {
+              cm.execCommand('insertSoftTab');
+            }
           }
-        }
-      },
-      'Shift-Tab': (cm) => cm.execCommand('indentLess'),
-    }
-  });
-  rEdit.on('change', function () { rEdit.save() });
-  //hinting on input
-  rEdit.on("inputRead", function (cm, event) {
-    var letters = /[\w%,#]/; //characters for activation
-    var cur = cm.getCursor();
-    var token = cm.getTokenAt(cur);
-    if (letters.test(event.text) && token.type != "comment") {
-      cm.showHint({ completeSingle: false });
-    };
-  });
+        },
+        'Shift-Tab': (cm) => cm.execCommand('indentLess'),
+      }
+    });
+    rEdit.on('change', function () { rEdit.save() });
+    //hinting on input
+    rEdit.on("inputRead", function (cm, event) {
+      var letters = /[\w%,#]/; //characters for activation
+      var cur = cm.getCursor();
+      var token = cm.getTokenAt(cur);
+      if (letters.test(event.text) && token.type != "comment") {
+        cm.showHint({ completeSingle: false });
+      };
+    });
+  }
 }
-}
+
 
 
 (function (mod) {
@@ -329,11 +331,10 @@ function initCM() {
       }
 
       if (ch == "%") {
-        //stream.next();
-        if (/\d/.test(stream.next())) {return 'number';}
+        if (/\d/.test(stream.next())) { return 'number'; }
         else {
-        stream.eatWhile(/[^\s\%]/);
-        if (stream.match("%")) return 'hr';
+          stream.eatWhile(/[^\s\%]/);
+          if (stream.match("%")) return 'hr';
         }
       }
 
