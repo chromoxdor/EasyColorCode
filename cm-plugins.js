@@ -13,7 +13,7 @@ var isSame;
     anyword(CodeMirror);
 })(function (CodeMirror) {
   "use strict";
-  var WORD = /[\w?#.,%]+/, RANGE = 500;
+  var WORD = /[\w?.,%]+/, RANGE = 500;
   CodeMirror.registerHelper("hint", "anyword", function (editor, options) {
     var word = options && options.word || WORD;
     var range = options && options.range || RANGE;

@@ -125,7 +125,11 @@ var AnythingElse = [
   "%cpu_id%", "%cpu_freq%", "%cpu_model%", "%cpu_rev%", "%cpu_cores%", "%board_name%",
   //Standard Conversions
   "%c_w_dir%", "%c_c2f%", "%c_ms2Bft%", "%c_dew_th%", "%c_alt_pres_sea%", "%c_sea_pres_alt%", "%c_cm2imp%", "%c_mm2imp%",
-  "%c_m2day%", "%c_m2dh%", "%c_m2dhm%", "%c_s2dhms%", "%c_2hex%", "%c_u2ip%"
+  "%c_m2day%", "%c_m2dh%", "%c_m2dhm%", "%c_s2dhms%", "%c_2hex%", "%c_u2ip%",
+  //Task settings
+  "settings.Enabled", "settings.Interval", "settings.ValueCount",
+  "settings.Controller1.Enabled", "settings.Controller2.Enabled", "settings.Controller3.Enabled",
+  "settings.Controller1.Idx", "settings.Controller2.Idx", "settings.Controller3.Idx"
 ];
 
 //merging displayspecific commands of P095,P096,P116,P131 into commonPlugins
@@ -143,33 +147,10 @@ var EXTRAWORDS = commonAtoms.concat(commonPlugins, commonKeywords, commonCommand
 
 var rEdit;
 function initCM() {
-  //this is causing issues
-  /*var onlongtouch;
-  var timer;
-  var touchduration = 800; 
-  function touchstart(e) {
-    if (!timer) {
-      timer = setTimeout(onlongtouch, touchduration);
-    }
-  }
-  function touchend() {
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-  }
-  onlongtouch = function () {
-    timer = null;
-    rEdit.execCommand('replace');
-  };
-  document.addEventListener("DOMContentLoaded", function (event) {
-    window.addEventListener("touchstart", touchstart, false);
-    window.addEventListener("touchend", touchend, false);
-  });*/
   var confirmR = true
   var android = /Android/.test(navigator.userAgent);
   if (android) {
-    if (confirm("Do you want to enable colored rules")) {
+    if (confirm("Do you want to enable colored rules. (There are some issues with the standard Android Keyboard causing it to fail!)")) {
       confirmR = true
     } else {
       confirmR = false
@@ -251,6 +232,9 @@ function initCM() {
     var lCcommonMath = commonMath.map(name => name.toLowerCase());
     commonMath = commonMath.concat(lCcommonMath);
 
+    var lCAnythingElse = AnythingElse.map(name => name.toLowerCase());
+    AnythingElse = AnythingElse.concat(lCAnythingElse);
+
     define('atom', commonAtoms);
     define('keyword', commonKeywords);
     define('builtin', commonCommands);
@@ -260,6 +244,7 @@ function initCM() {
     define('number', commonNumber);
     define('bracket', commonMath);
     define('warning', commonWarning);
+    define('hr', AnythingElse);
 
     function tokenBase(stream, state) {
       if (stream.eatSpace()) return null;
@@ -291,7 +276,7 @@ function initCM() {
       if (/\w/.test(ch)) {
         for (const element of EXTRAWORDS) {
           let WinDB = element.substring(1);
-          if ((element.includes(":") || element.includes(",")) && stream.match(WinDB)) void (0)
+          if ((element.includes(":") || element.includes(",") || element.includes(".")) && stream.match(WinDB)) void (0)
         }
       }
       //P022 addition
