@@ -13,7 +13,7 @@ var isSame;
     anyword(CodeMirror);
 })(function (CodeMirror) {
   "use strict";
-  var WORD = /[\w?.,%]+/, RANGE = 500;
+  var WORD = /(?:int#|var#)(?:\d+)|([\w?.,%])+/, RANGE = 500;
   CodeMirror.registerHelper("hint", "anyword", function (editor, options) {
     var word = options && options.word || WORD;
     var range = options && options.range || RANGE;
@@ -29,7 +29,7 @@ var isSame;
       return element.toLowerCase() === curWord;
     });
     var list = options && options.list || [], seen = {};
-    var re = new RegExp(word.source, "g");
+    var re = new RegExp(word.source, "gi");
     for (var dir = -1; dir <= 1; dir += 2) {
       var line = cur.line, endLine = Math.min(Math.max(line + dir * range, editor.firstLine()), editor.lastLine()) + dir;
       for (; line != endLine; line += dir) {

@@ -13,7 +13,7 @@ var isSame;
     anyword(CodeMirror);
 })(function (CodeMirror) {
   "use strict";
-  var WORD = /[\w?#.,%]+/, RANGE = 500;
+  var WORD = /(?:int#|var#)(?:\d+)|([\w?.,%])+/, RANGE = 500;
   CodeMirror.registerHelper("hint", "anyword", function (editor, options) {
     var word = options && options.word || WORD;
     var range = options && options.range || RANGE;
@@ -29,7 +29,7 @@ var isSame;
       return element.toLowerCase() === curWord;
     });
     var list = options && options.list || [], seen = {};
-    var re = new RegExp(word.source, "g");
+    var re = new RegExp(word.source, "gi");
     for (var dir = -1; dir <= 1; dir += 2) {
       var line = cur.line, endLine = Math.min(Math.max(line + dir * range, editor.firstLine()), editor.lastLine()) + dir;
       for (; line != endLine; line += dir) {
@@ -250,6 +250,7 @@ var isSame;
     //autocorrect with space key and add a whitespace after the word CXD
     if (isSame) {
       baseMap["Space"] = handle.pick;
+      baseMap[","] = handle.pick;
     }
     if (mac) {
       baseMap["Ctrl-P"] = function () { handle.moveFocus(-1); };
@@ -465,7 +466,6 @@ var isSame;
       numCharB = rEdit.getCursor().ch - this.data.list[0].length;
       if (numCharA === 1 || numCharA === 0) { Xspace = ''; }
       else { Xspace = ' '.repeat(numCharA - 2); if (numCharB > 0) Xspace2 = ' '.repeat(numCharB); else Xspace2 = ''; }
-
       if (isSame && nameKey === 'Space') {
         if (this.data.list[0] === 'If') { this.data.list[0] = this.data.list[0] + ' '; }
         else if (this.data.list[0] != 'Do') { this.data.list[0] = this.data.list[0] + ' '; isSame = false; whatisIt = 0; }
@@ -476,6 +476,10 @@ var isSame;
         else if (this.data.list[0] === 'On') { this.data.list[0] = this.data.list[0] + '  Do' + '\n\n' + 'Endon'; whatisIt = 2; }
         else if (this.data.list[0] === 'Do') { this.data.list[0] = this.data.list[0] + '\n\n' + 'Endon'; whatisIt = 2.2; }
         else { this.data.list[0] = this.data.list[0] + '\n' + Xspace2; whatisIt = 0; }
+        isSame = false;
+      }
+      else if (isSame && nameKey === ',') {
+        this.data.list[0] = this.data.list[0] + ','; whatisIt = 0;
         isSame = false;
       }
       if (this.data.list[this.selectedHint] === 'LogEntry') { this.data.list[this.selectedHint] = this.data.list[this.selectedHint] + ',\'\''; whatisIt = 3; }
