@@ -150,7 +150,6 @@ var AnythingElse = [
   "var", "int"
 ];
 
-
 //merging displayspecific commands of P095,P096,P116,P131 into commonPlugins
 for (const element2 of pluginDispKind) {
   commonPlugins = commonPlugins.concat(element2);
@@ -176,13 +175,6 @@ function initCM() {
     }
   }
   if (confirmR) {
-    //inital autocorrection
-    for (const element of EXTRAWORDS) {
-      let textR = document.getElementById("rules").innerHTML;
-      tempText = textR.replaceAll(new RegExp("\\b" + element + "\\b", "gi"), "°*tmp?!*");
-      document.getElementById("rules").innerHTML = tempText.replaceAll("°*tmp?!*", element);
-    }
-
     CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
     rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
       tabSize: 2, indentWithTabs: false, lineNumbers: true, autoCloseBrackets: true,
@@ -214,7 +206,6 @@ function initCM() {
     });
   }
 }
-
 
 
 (function (mod) {
