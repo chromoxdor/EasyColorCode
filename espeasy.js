@@ -168,7 +168,7 @@ function initCM() {
   var confirmR = true
   var android = /Android/.test(navigator.userAgent);
   if (android) {
-    if (confirm("Do you want to enable colored rules. (There are some issues with the standard Android Keyboard causing it to fail!)")) {
+    if (confirm("Do you want to enable colored rules? (There are some issues with the standard Android Keyboard causing it to fail!)")) {
       confirmR = true
     } else {
       confirmR = false
