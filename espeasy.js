@@ -13,7 +13,7 @@ var commonCommands = ["AccessInfo", "Background", "Build", "ClearAccessBlock", "
   "WiFiKey2", "WiFiMode", "WiFiScan", "WiFiSSID", "WiFiSSID2", "WiFiSTAMode",
   "Event", "AsyncEvent",
   "GPIO", "GPIOToggle", "LongPulse", "LongPulse_mS", "Monitor", "Pulse", "PWM", "Servo", "Status", "Tone", "RTTTL", "UnMonitor",];
-var commonString2 = ["Clock#Time", "Login#Failed", "MQTT#Connected", "MQTT#Disconnected", "MQTTimport#Connected", "MQTTimport#Disconnected", "Rules#Timer", "System#Boot",
+var commonEvents = ["Clock#Time", "Login#Failed", "MQTT#Connected", "MQTT#Disconnected", "MQTTimport#Connected", "MQTTimport#Disconnected", "Rules#Timer", "System#Boot",
   "System#BootMode", "System#Sleep", "System#Wake", "TaskExit#", "TaskInit#", "ThingspeakReply", "Time#Initialized", "Time#Set", "WiFi#APmodeDisabled", "WiFi#APmodeEnabled",
   "WiFi#ChangedAccesspoint", "WiFi#ChangedWiFichannel", "WiFi#Connected", "WiFi#Disconnected"];
 var commonPlugins = [
@@ -170,7 +170,7 @@ for (const element2 of pluginDispKind) {
   }
 }
 
-var EXTRAWORDS = commonAtoms.concat(commonPlugins, commonKeywords, commonCommands, commonString2, commonTag, commonNumber, commonMath, commonWarning, taskSpecifics, AnythingElse);
+var EXTRAWORDS = commonAtoms.concat(commonPlugins, commonKeywords, commonCommands, commonEvents, commonTag, commonNumber, commonMath, commonWarning, taskSpecifics, AnythingElse);
 
 var rEdit;
 function initCM() {
@@ -237,8 +237,8 @@ function initCM() {
     var lCcommonCommands = commonCommands.map(name => name.toLowerCase());
     commonCommands = commonCommands.concat(lCcommonCommands);
 
-    var lCcommonString2 = commonString2.map(name => name.toLowerCase());
-    commonString2 = commonString2.concat(lCcommonString2);
+    var lCcommonString2 = commonEvents.map(name => name.toLowerCase());
+    commonEvents = commonEvents.concat(lCcommonString2);
 
     var lCcommonPlugins = commonPlugins.map(name => name.toLowerCase());
     commonPlugins = commonPlugins.concat(lCcommonPlugins);
@@ -267,7 +267,7 @@ function initCM() {
     define('atom', commonAtoms);
     define('keyword', commonKeywords);
     define('builtin', commonCommands);
-    define('string-2', commonString2);
+    define('events', commonEvents);
     define('def', commonPlugins);
     define('tag', commonTag);
     define('number', commonNumber);
@@ -368,7 +368,7 @@ function initCM() {
       if (/\w/.test(ch)) {
         if (stream.match("#")) {
           stream.eatWhile(/[\w.#]/);
-          return 'string-2';
+          return 'events';
         }
       }
 
