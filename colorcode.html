@@ -30,7 +30,7 @@
     }
 
     .CodeMirror {
-      height: inherit;
+      height: 100%;
       border-radius: 0px 0px 10px 10px;
     }
 
@@ -51,18 +51,19 @@
 
     #container {
       width: 100%;
+      display: flex;
       height: 80vh;
       max-width: 900px;
       background: #f0f0f0;
       box-shadow: 0px 0px 15px 5px rgb(0 0 0 / 29%);
       overflow: hidden;
       border-radius: 10px;
+      flex-direction: column;
     }
 
     h1 {
       color: #44607a;
       font-size: 30px;
-      width: 100%;
       text-align: center;
       text-transform: uppercase;
     }
