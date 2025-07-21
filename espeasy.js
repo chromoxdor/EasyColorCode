@@ -273,20 +273,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Function to trigger formatting
 function triggerFormatting() {
-  initalAutocorrection();
-
-  const textarea = document.getElementById('rules');
-  textarea.value = formatLogic(textarea.value);
-
-  // Clean up previous CodeMirror instances (if any)
-  document.querySelectorAll('div.cm-s-default').forEach(el => el.remove());
-  if (confirmR) initCM(true);
+  let textarea = rEdit.getValue();
+  textarea = initalAutocorrection(textarea);
+  textarea = formatLogic(textarea);
+  rEdit.setValue(textarea);
+  rEdit.save();
 }
 
-function initalAutocorrection() {
-  const textarea = document.getElementById("rules");
-  let text = textarea.value;
-
+function initalAutocorrection(text) {
   for (const word of EXTRAWORDS) {
     if (word === "Do") {
       const pattern = /(^|\s)(do)(\s*)(\/\/.*)?$/gmi;
@@ -301,8 +295,7 @@ function initalAutocorrection() {
       });
     }
   }
-
-  textarea.value = text;
+  return text;
 }
 
 function formatLogic(text) {
@@ -463,10 +456,41 @@ function formatLogic(text) {
   }
 
   if (errors.length > 0) {
-    alert('Errors found:\n' + errors.join('\n'));
+    const firstErrorLine = extractFirstErrorLine(errors);
+    alert("Errors found:\n" + errors.join('\n'));
+    if (!isNaN(firstErrorLine)) {
+      setTimeout(() => {
+        jumpToLine(firstErrorLine);
+      }, 50);
+    }
   }
 
   return result.join('\n');
+}
+
+function jumpToLine(lineNumber) {
+  const cmLine = Math.max(0, lineNumber - 1); // Convert to 0-based index
+  rEdit.setCursor({ line: cmLine, ch: 0 }); // Place cursor at beginning of the line
+  rEdit.focus();                            // Ensure editor is focused
+  // Scroll into view with margin (optional)
+  rEdit.scrollIntoView({ line: cmLine, ch: 0 }, 100);
+}
+
+function extractFirstErrorLine(errors) {
+  for (const err of errors) {
+    // Match: "• Line 5: ..."
+    let match = err.match(/• Line (\d+)/);
+    if (match) return parseInt(match[1]);
+
+    // Match: "starting at line 2"
+    match = err.match(/starting at line (\d+)/);
+    if (match) return parseInt(match[1]);
+
+    // Match: "starting at line(s): 4, 7, 9"
+    match = err.match(/starting at line\(s\):\s*(\d+)/);
+    if (match) return parseInt(match[1]);
+  }
+  return null;
 }
 //--------------------------------------------------------------------------------- end of formatting option
 
