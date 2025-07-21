@@ -201,16 +201,16 @@ var EXTRAWORDS = commonAtoms.concat(commonPlugins, commonKeywords, commonCommand
 var rEdit;
 var confirmR = true;
 
-function initCM(didchk) {
+function initCM() {
   var android = /Android/.test(navigator.userAgent);
-  if (android && !didchk) {
+  if (android) {
     if (confirm("Do you want to enable colored rules? (There are some issues with the standard Android Keyboard causing it to fail!)")) {
       confirmR = true
     } else {
       confirmR = false
     }
   }
-  if (confirmR || didchk) {
+  if (confirmR) {
     CodeMirror.commands.autocomplete = function (cm) { cm.showHint({ hint: CodeMirror.hint.anyword }); }
     rEdit = CodeMirror.fromTextArea(document.getElementById('rules'), {
       tabSize: 2, indentWithTabs: false, lineNumbers: true, autoCloseBrackets: true,
@@ -273,11 +273,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Function to trigger formatting
 function triggerFormatting() {
-  let textarea = rEdit.getValue();
+  let textarea;
+  if (confirmR) {
+    textarea = rEdit.getValue();
+  } else {
+    textarea = document.getElementById('rules').value;
+  }
   textarea = initalAutocorrection(textarea);
   textarea = formatLogic(textarea);
-  rEdit.setValue(textarea);
-  rEdit.save();
+  if (confirmR) {
+    rEdit.setValue(textarea);
+    rEdit.save();
+  }
+  else {
+    document.getElementById('rules').value = textarea;
+  }
 }
 
 function initalAutocorrection(text) {
@@ -458,7 +468,7 @@ function formatLogic(text) {
   if (errors.length > 0) {
     const firstErrorLine = extractFirstErrorLine(errors);
     alert("Errors found:\n" + errors.join('\n'));
-    if (!isNaN(firstErrorLine)) {
+    if (!isNaN(firstErrorLine) && confirmR) {
       setTimeout(() => {
         jumpToLine(firstErrorLine);
       }, 50);
@@ -472,7 +482,6 @@ function jumpToLine(lineNumber) {
   const cmLine = Math.max(0, lineNumber - 1); // Convert to 0-based index
   rEdit.setCursor({ line: cmLine, ch: 0 }); // Place cursor at beginning of the line
   rEdit.focus();                            // Ensure editor is focused
-  // Scroll into view with margin (optional)
   rEdit.scrollIntoView({ line: cmLine, ch: 0 }, 100);
 }
 
