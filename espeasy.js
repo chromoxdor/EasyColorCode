@@ -282,88 +282,136 @@ function initalAutocorrection() {
 }
 
 function formatLogic(text) {
-    const INDENT = '  '; // 2 spaces
-    const lines = text.split('\n').map(line => line.trim()); // remove all existing indentation
+  const INDENT = '  '; // 2 spaces
+  const lines = text.split('\n').map(line => line.trim()); // remove all existing indentation
 
-    let indentLevel = 0;
-    const result = [];
-    const stack = [];
+  let indentLevel = 0;
+  const result = [];
+  const stack = [];
+  const errors = [];
 
-    // ignoring case
-    function startsWithKeyword(line, keywords) {
-        line = line.toLowerCase();
-        return keywords.some(k => line.startsWith(k));
+  let openOnDoLine = null;
+  let ifCount = 0;
+  let endifCount = 0;
+  let ifLines = [];
+
+  function startsWithKeyword(line, keywords) {
+    line = line.toLowerCase();
+    return keywords.some(k => line.startsWith(k));
+  }
+
+  const ON_START = 'on';
+  const ON_END = 'endon';
+  const IF_START = 'if';
+  const ELSE = 'else';
+  const IF_END = 'endif';
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const low = line.toLowerCase();
+
+    // handle "On ... Do"
+    if (startsWithKeyword(low, [ON_START])) {
+      const hasDo = low.includes('do');
+
+      if (!hasDo) {
+        errors.push(`Line ${i + 1}: "On" without "Do"`);
+      } else {
+        if (openOnDoLine !== null) {
+          errors.push(`Line ${openOnDoLine + 1}: "On...Do" without closing "Endon"`);
+        }
+        openOnDoLine = i;
+      }
+
+      result.push(line);
+      indentLevel = 1;
+      stack.push(ON_START);
+      continue;
     }
 
-    // We define these keywords:
-    const ON_START = 'on';      // Start of main block
-    const ON_END = 'endon';     // End of main block
-    const IF_START = 'if';      // If block start
-    const ELSE = 'else';        // Else block
-    const IF_END = 'endif';     // Endif
+    // Handle "Endon"
+    if (startsWithKeyword(low, [ON_END])) {
+      indentLevel = Math.max(indentLevel - 1, 0);
+      result.push(INDENT.repeat(indentLevel) + line);
 
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const low = line.toLowerCase();
-
-        // On ... Endon blocks
-        if (startsWithKeyword(low, [ON_START])) {
-            // main block - no indent for this line
-            result.push(line);
-            indentLevel = 1;  // indent inside On ... Endon
-            stack.push(ON_START);
-            continue;
+      if (stack.includes(ON_START)) {
+        // remove everything from the top of the stack until the last ON_START
+        while (stack.length) {
+          const popped = stack.pop();
+          if (popped === ON_START) {
+            openOnDoLine = null;
+            break;
+          }
         }
+      } else {
+        errors.push(`Line ${i + 1}: "Endon" without matching "On...Do"`);
+      }
 
-        if (startsWithKeyword(low, [ON_END])) {
-            // ending main block - decrease indent before printing
-            indentLevel = Math.max(indentLevel - 1, 0);
-            result.push(INDENT.repeat(indentLevel) + line);
-            stack.pop();
-            continue;
-        }
-
-        // If inside main block:
-        if (stack.includes(ON_START)) {
-            // Handle If, Else, Endif blocks inside main block
-
-            if (startsWithKeyword(low, [IF_START])) {
-                // If starts: indent current line, push stack, increase indent
-                result.push(INDENT.repeat(indentLevel) + line);
-                stack.push(IF_START);
-                indentLevel++;
-                continue;
-            }
-
-            if (startsWithKeyword(low, [ELSE])) {
-                // Else: decrease indent (close previous If block), print Else, increase indent again
-                indentLevel = Math.max(indentLevel - 1, 0);
-                result.push(INDENT.repeat(indentLevel) + line);
-                indentLevel++;
-                continue;
-            }
-
-            if (startsWithKeyword(low, [IF_END])) {
-                // Endif: decrease indent, print line, pop stack
-                indentLevel = Math.max(indentLevel - 1, 0);
-                result.push(INDENT.repeat(indentLevel) + line);
-                // pop only if top of stack is If
-                if (stack[stack.length - 1] === IF_START) {
-                    stack.pop();
-                }
-                continue;
-            }
-
-            // Normal line inside main block or If blocks, indent with current level
-            result.push(INDENT.repeat(indentLevel) + line);
-            continue;
-        }
-
-        // Lines outside any On ... Endon block, print as is (or trim)
-        result.push(line);
+      continue;
     }
 
-    return result.join('\n');
+    // If inside main block:
+    if (stack.includes(ON_START)) {
+      if (startsWithKeyword(low, [IF_START])) {
+        ifCount++;
+        ifLines.push(i + 1);
+        result.push(INDENT.repeat(indentLevel) + line);
+        stack.push(IF_START);
+        indentLevel++;
+        continue;
+      }
+
+      if (startsWithKeyword(low, [ELSE])) {
+        indentLevel = Math.max(indentLevel - 1, 0);
+        result.push(INDENT.repeat(indentLevel) + line);
+        indentLevel++;
+        continue;
+      }
+
+      if (startsWithKeyword(low, [IF_END])) {
+        endifCount++;
+        indentLevel = Math.max(indentLevel - 1, 0);
+        result.push(INDENT.repeat(indentLevel) + line);
+
+        if (stack.length && stack[stack.length - 1] === IF_START) {
+          stack.pop();
+          ifLines.pop();
+        } else {
+          errors.push(`Line ${i + 1}: "Endif" without matching "If"`);
+        }
+
+        continue;
+      }
+
+      // any normal line inside On block
+      result.push(INDENT.repeat(indentLevel) + line);
+      continue;
+    }
+
+    // Outside any block
+    result.push(line);
+  }
+
+  // Final checks
+  if (openOnDoLine !== null) {
+    errors.push(`Line ${openOnDoLine + 1}: "On...Do" without closing "Endon"`);
+  }
+
+  if (ifCount > endifCount) {
+    const diff = ifCount - endifCount;
+    errors.push(`Missing ${diff} Endif(s)`);
+    if (ifLines.length > 0) {
+      errors.push(`Unclosed If block(s) starting at line(s): ${ifLines.join(", ")}`);
+    }
+  } else if (endifCount > ifCount) {
+    errors.push(`Found ${endifCount - ifCount} Endif(s) without matching If(s)`);
+  }
+
+  if (errors.length > 0) {
+    alert("Errors found:\n" + errors.join("\n"));
+  }
+
+  return result.join('\n');
 }
 //--------------------------------------------------------------------------------- end of formatting option
 
