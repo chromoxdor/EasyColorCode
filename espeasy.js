@@ -13,10 +13,10 @@ var commonCommands = ["AccessInfo", "Background", "Build", "ClearAccessBlock", "
   "WiFiKey2", "WiFiMode", "WiFiScan", "WiFiSSID", "WiFiSSID2", "WiFiSTAMode",
   "Event", "AsyncEvent",
   "GPIO", "GPIOToggle", "LongPulse", "LongPulse_mS", "Monitor", "Pulse", "PWM", "Servo", "Status", "Tone", "RTTTL", "UnMonitor",
-  "Provision", "Provision,Config", "Provision,Security", "Provision,Notification", "Provision,Provision", "Provision,Rules,", "Provision,CustomCdnUrl", "Provision,Firmware,", ];
+  "Provision", "Provision,Config", "Provision,Security", "Provision,Notification", "Provision,Provision", "Provision,Rules", "Provision,CustomCdnUrl", "Provision,Firmware"];
 var commonEvents = ["Clock#Time", "Login#Failed", "MQTT#Connected", "MQTT#Disconnected", "MQTTimport#Connected", "MQTTimport#Disconnected", "Rules#Timer", "System#Boot",
   "System#BootMode", "System#Sleep", "System#Wake", "TaskExit#", "TaskInit#", "ThingspeakReply", "Time#Initialized", "Time#Set", "WiFi#APmodeDisabled", "WiFi#APmodeEnabled",
-  "WiFi#ChangedAccesspoint", "WiFi#ChangedWiFichannel", "WiFi#Connected", "WiFi#Disconnected", "ProvisionFirmware",];
+  "WiFi#ChangedAccesspoint", "WiFi#ChangedWiFichannel", "WiFi#Connected", "WiFi#Disconnected"];
 var commonPlugins = [
   //P003
   "ResetPulseCounter", "SetPulseCounterTotal", "LogPulseStatistic",
@@ -244,46 +244,49 @@ function initCM() {
 
 //--------------------------------------------------------------------------------- add formatting option
 document.addEventListener('keydown', function (e) {
-    // Ctrl + Shift + F to format
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'f') {
-        e.preventDefault();
-        console.log('Formatting...');
-        initalAutocorrection();
+  // Ctrl + Shift + F to format
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'f') {
+    e.preventDefault();
+    console.log('Formatting...');
+    initalAutocorrection();
 
-        const textarea = document.getElementById('rules');
-        textarea.value = formatLogic(textarea.value);
+    const textarea = document.getElementById('rules');
+    textarea.value = formatLogic(textarea.value);
 
-        // Clean up previous CodeMirror instances (if any)
-        document.querySelectorAll('div.cm-s-default').forEach(el => el.remove());
-        initCM();
-    }
+    // Clean up previous CodeMirror instances (if any)
+    document.querySelectorAll('div.cm-s-default').forEach(el => el.remove());
+    initCM();
+  }
 });
 
 function initalAutocorrection() {
-    const textarea = document.getElementById("rules");
-    let text = textarea.value;
+  const textarea = document.getElementById("rules");
+  let text = textarea.value;
 
-    for (const word of EXTRAWORDS) {
-        if (word === "Do") {
-            const pattern = /(^|\s)(do)(\s*)(\/\/.*)?$/gmi;
-            text = text.replace(pattern, (match, p1, p2, p3, p4) => {
-                return `${p1}Do${p3}${p4 ?? ""}`;
-            });
-        } else {
-            const pattern = new RegExp(`^\\s*\\b${word}\\b`, "gmi");
-            text = text.replace(pattern, (match) => {
-                // Replace the matched word with its corrected casing
-                return match.replace(new RegExp(word, 'i'), word);
-            });
-        }
+  for (const word of EXTRAWORDS) {
+    if (word === "Do") {
+      const pattern = /(^|\s)(do)(\s*)(\/\/.*)?$/gmi;
+      text = text.replace(pattern, (match, p1, p2, p3, p4) => {
+        return `${p1}Do${p3}${p4 ?? ""}`;
+      });
+    } else {
+      const pattern = new RegExp(`^\\s*\\b${word}\\b`, "gmi");
+      text = text.replace(pattern, (match) => {
+        // Replace the matched word with its corrected casing
+        return match.replace(new RegExp(word, 'i'), word);
+      });
     }
+  }
 
-    textarea.value = text;
+  textarea.value = text;
 }
 
 function formatLogic(text) {
   const INDENT = '  '; // 2 spaces
-  const lines = text.split('\n').map(line => line.trim()); // remove all existing indentation
+  const lines = text.split('\n').map(line => {
+    const trimmed = line.trimStart(); // remove leading spaces only
+    return trimmed.startsWith('//') ? line : trimmed;
+  });
 
   let indentLevel = 0;
   const result = [];
@@ -383,8 +386,14 @@ function formatLogic(text) {
         continue;
       }
 
-      // any normal line inside On block
-      result.push(INDENT.repeat(indentLevel) + line);
+      if (line.trim().startsWith('//')) {
+        // no indentation for comments
+        result.push(line);
+      } else {
+        // any normal line inside On block
+        result.push(INDENT.repeat(indentLevel) + line);
+      }
+
       continue;
     }
 
