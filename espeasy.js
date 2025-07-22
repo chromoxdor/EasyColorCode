@@ -200,9 +200,9 @@ var EXTRAWORDS = commonAtoms.concat(commonPlugins, commonKeywords, commonCommand
 
 var rEdit;
 var confirmR = true;
+var android = /Android/.test(navigator.userAgent);
 
 function initCM() {
-  var android = /Android/.test(navigator.userAgent);
   if (android) {
     if (confirm("Do you want to enable colored rules? (There are some issues with the standard Android Keyboard causing it to fail!)")) {
       confirmR = true
@@ -230,6 +230,7 @@ function initCM() {
         'Shift-Tab': (cm) => cm.execCommand('indentLess'),
       }
     });
+
     rEdit.on('change', function () { rEdit.save() });
     //hinting on input
     rEdit.on("inputRead", function (cm, event) {
@@ -262,13 +263,89 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'f') {
-      e.preventDefault();
-      console.log('Keyboard shortcut detected: Formatting...');
-      triggerFormatting();
+  // const form2 = document.getElementsByClassName('CodeMirror')[0];
+  // if (form2) {
+  //   console.log('Form2 found', form2);
+  //   const btn2 = document.createElement('button');
+  //   btn2.type = 'button';     // prevent form submission
+  //   btn2.id = 'hintBtn';
+  //   btn2.innerHTML = "&#9776;&#xFE0E;"; // ☰︎
+  //   btn2.className = 'button help';
+  //   btn2.style.position = 'absolute';
+  //   btn2.style.right = '0';
+  //   btn2.style.top = '0';
+
+  //   form2.appendChild(btn2);
+
+  //   btn2.addEventListener('click', () => {
+  //     if (typeof rEdit !== 'undefined') {
+  //       rEdit.focus(); // Optional: ensure focus
+  //       rEdit.execCommand('autocomplete'); // Show hint menu
+  //     }
+  //   });
+  // }
+
+let charBuffer = "";
+
+// Global keydown handler
+document.addEventListener('keydown', function (e) {
+  // Ctrl + Shift + F triggers formatting
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'f') {
+    e.preventDefault();
+    console.log('Keyboard shortcut detected: Formatting...');
+    triggerFormatting();
+    return;
+  }
+
+  // Clear buffer on navigation/editing/meta keys
+  const ignoreKeys = [
+    "Backspace", "Delete", "ArrowLeft", "ArrowRight",
+    "ArrowUp", "ArrowDown", "Enter", "Tab", "Escape",
+    "Shift", "Control", "Alt", "Meta"
+  ];
+
+  if (ignoreKeys.includes(e.key) || e.key.length !== 1) {
+    charBuffer = "";
+  }
+});
+
+if (android) {
+  document.addEventListener("input", (e) => {
+    //alert(`valid input: "${e.data}"`);
+    //if (!rEdit || !e.data) return;
+
+    const data = e.data;
+    const doc = rEdit.getDoc();
+    let cursor = doc.getCursor(); // Cursor is AFTER inserted char
+
+    const letters = /[\w%,.]/;
+    const token = rEdit.getTokenAt(cursor);
+    if (letters.test(data) && token.type !== "comment") {
+      charBuffer += data;
+      // Calculate starting point for re-inserting
+      const insertPos = {
+        line: cursor.line,
+        ch: cursor.ch - charBuffer.length + 1
+      };
+
+      // Replace from where the buffer began to current position
+      doc.replaceRange(charBuffer, insertPos, cursor);
+
+      // Set cursor at end of buffer
+      rEdit.setCursor({
+        line: insertPos.line,
+        ch: insertPos.ch + charBuffer.length
+      });
+      
+      // Show hints
+      rEdit.showHint({ completeSingle: false });
+    } else if (!letters.test(data)) {
+      // Reset buffer on non-matching input (e.g., space, enter, etc.)
+      charBuffer = "";
     }
   });
+}
+
 });
 
 // Function to trigger formatting
@@ -468,10 +545,17 @@ function formatLogic(text) {
   if (errors.length > 0) {
     const firstErrorLine = extractFirstErrorLine(errors);
     alert("Errors found:\n" + errors.join('\n'));
-    if (!isNaN(firstErrorLine) && confirmR) {
-      setTimeout(() => {
-        jumpToLine(firstErrorLine);
-      }, 50);
+    if (!isNaN(firstErrorLine)) {
+      if (confirmR) {
+        setTimeout(() => {
+          jumpToLine(firstErrorLine);
+        }, 50);
+      } else {
+        const textareaR = document.getElementById('rules');
+        setTimeout(() => {
+          jumpToLineInTextarea(textareaR, firstErrorLine);
+        }, 50);
+      }
     }
   }
 
@@ -500,6 +584,25 @@ function extractFirstErrorLine(errors) {
     if (match) return parseInt(match[1]);
   }
   return null;
+}
+
+function jumpToLineInTextarea(textarea, lineNumber) {
+  const lines = textarea.value.split('\n');
+  const clampedLine = Math.max(1, Math.min(lineNumber, lines.length)); // Clamp to valid range
+
+  // Calculate the character offset to the start of the target line
+  let offset = 0;
+  for (let i = 0; i < clampedLine - 1; i++) {
+    offset += lines[i].length + 1; // +1 for the newline character
+  }
+
+  // Move cursor and scroll into view
+  textarea.focus();
+  textarea.selectionStart = textarea.selectionEnd = offset;
+
+  // Scroll to the selection
+  textarea.scrollTop = textarea.scrollHeight; // Jump to bottom
+  textarea.scrollTop = textarea.scrollTop - textarea.clientHeight / 2; // Center around selection
 }
 //--------------------------------------------------------------------------------- end of formatting option
 

@@ -82,13 +82,13 @@ var isSame;
 
   // This is the old interface, kept around for now to stay
   // backwards-compatible.
-  CodeMirror.showHint = function (cm, getHints, options) {
-    if (!getHints) return cm.showHint(options);
-    if (options && options.async) getHints.async = true;
-    var newOpts = { hint: getHints };
-    if (options) for (var prop in options) newOpts[prop] = options[prop];
-    return cm.showHint(newOpts);
-  };
+  // CodeMirror.showHint = function (cm, getHints, options) {
+  //   if (!getHints) return cm.showHint(options);
+  //   if (options && options.async) getHints.async = true;
+  //   var newOpts = { hint: getHints };
+  //   if (options) for (var prop in options) newOpts[prop] = options[prop];
+  //   return cm.showHint(newOpts);
+  // };
 
   CodeMirror.defineExtension("showHint", function (options) {
     options = parseOptions(this, this.getCursor("start"), options);
