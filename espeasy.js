@@ -230,9 +230,9 @@ function initCM() {
         'Shift-Tab': (cm) => cm.execCommand('indentLess'),
       }
     });
-    if (!android) {
+   
       rEdit.on('change', function () { rEdit.save() });
-      //hinting on input
+     if (!android) {
       rEdit.on("inputRead", function (cm, event) {
         var letters = /[\w%,.]/; //characters for activation
         var cur = cm.getCursor();
