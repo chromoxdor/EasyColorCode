@@ -230,10 +230,10 @@ function initCM() {
         'Shift-Tab': (cm) => cm.execCommand('indentLess'),
       }
     });
-   
-      rEdit.on('change', function () { rEdit.save() });
-     
-      if (!android) {
+
+    rEdit.on('change', function () { rEdit.save() });
+
+    if (!android) {
       rEdit.on("inputRead", function (cm, event) {
         var letters = /[\w%,.]/; //characters for activation
         var cur = cm.getCursor();
@@ -348,36 +348,36 @@ document.addEventListener('DOMContentLoaded', () => {
         charBuffer = "";
       }
     });
-  
 
-  // rEdit.on('endCompletion', function () {
-  //   setTimeout(() => {
-  //     forceKeyboardOpen();
-  //   }, 10); // small delay may help
-  // });
 
-  function forceKeyboardOpen() {
-    const input = document.createElement("input");
-    input.type = "text";
-    input.style.position = "absolute";
-    input.style.opacity = "0";
-    input.style.height = "0";
-    input.style.width = "0";
-    input.style.border = "none";
-    input.style.top = "0";
-    input.style.left = "-9999";
-    input.style.padding = "0";
-    input.style.zIndex = "-1";
-    input.style.fontSize = "16px"; // prevents zoom on iOS
+    rEdit.on('endCompletion', function () {
+      setTimeout(() => {
+        rEdit.focus();
+      }, 10); // small delay may help
+    });
 
-    document.body.appendChild(input);
-    input.focus();
+    function forceKeyboardOpen() {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.style.position = "absolute";
+      input.style.opacity = "0";
+      input.style.height = "0";
+      input.style.width = "0";
+      input.style.border = "none";
+      input.style.top = "0";
+      input.style.left = "-9999";
+      input.style.padding = "0";
+      input.style.zIndex = "-1";
+      input.style.fontSize = "16px"; // prevents zoom on iOS
 
-    setTimeout(() => {
-      input.remove();
-      rEdit.focus(); // bring focus back to CodeMirror
-    }, 10);
-  }
+      document.body.appendChild(input);
+      input.focus();
+
+      setTimeout(() => {
+        input.remove();
+        rEdit.focus(); // bring focus back to CodeMirror
+      }, 10);
+    }
   }
 });
 
@@ -460,6 +460,10 @@ function formatLogic(text) {
     return line.trim().toLowerCase() === 'else';
   }
 
+  function isElseif(line) {
+    return line.trim().toLowerCase().startsWith('elseif');
+  }
+
   function isEndif(line) {
     return line.trim().toLowerCase() === 'endif';
   }
@@ -536,8 +540,22 @@ function formatLogic(text) {
       }
 
       if (isElse(trimmed)) {
+        console.log("Else found:", trimmed);
         if (currentIfStack.length === 0) {
           errors.push(`• Line ${i + 1}: "Else" without matching "If"`);
+        } else {
+          indentLevel = Math.max(indentLevel - 1, 0);
+        }
+
+        result.push(INDENT.repeat(indentLevel) + trimmed);
+        indentLevel++;
+        continue;
+      }
+
+      if (isElseif(trimmed)) {
+        console.log("Elseif found:", trimmed);
+        if (currentIfStack.length === 0) {
+          errors.push(`• Line ${i + 1}: "Elseif" without matching "If"`);
         } else {
           indentLevel = Math.max(indentLevel - 1, 0);
         }
