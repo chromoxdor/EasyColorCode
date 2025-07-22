@@ -230,17 +230,18 @@ function initCM() {
         'Shift-Tab': (cm) => cm.execCommand('indentLess'),
       }
     });
-
-    rEdit.on('change', function () { rEdit.save() });
-    //hinting on input
-    rEdit.on("inputRead", function (cm, event) {
-      var letters = /[\w%,.]/; //characters for activation
-      var cur = cm.getCursor();
-      var token = cm.getTokenAt(cur);
-      if (letters.test(event.text) && token.type != "comment") {
-        cm.showHint({ completeSingle: false });
-      };
-    });
+    if (!android) {
+      rEdit.on('change', function () { rEdit.save() });
+      //hinting on input
+      rEdit.on("inputRead", function (cm, event) {
+        var letters = /[\w%,.]/; //characters for activation
+        var cur = cm.getCursor();
+        var token = cm.getTokenAt(cur);
+        if (letters.test(event.text) && token.type != "comment") {
+          cm.showHint({ completeSingle: false });
+        };
+      });
+    }
   }
 }
 
