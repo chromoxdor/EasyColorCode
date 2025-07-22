@@ -285,66 +285,94 @@ document.addEventListener('DOMContentLoaded', () => {
   //   });
   // }
 
-let charBuffer = "";
+  let charBuffer = "";
 
-// Global keydown handler
-document.addEventListener('keydown', function (e) {
-  // Ctrl + Shift + F triggers formatting
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'f') {
-    e.preventDefault();
-    console.log('Keyboard shortcut detected: Formatting...');
-    triggerFormatting();
-    return;
-  }
+  // Global keydown handler
+  document.addEventListener('keydown', function (e) {
+    // Ctrl + Shift + F triggers formatting
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'f') {
+      e.preventDefault();
+      console.log('Keyboard shortcut detected: Formatting...');
+      triggerFormatting();
+      return;
+    }
 
-  // Clear buffer on navigation/editing/meta keys
-  const ignoreKeys = [
-    "Backspace", "Delete", "ArrowLeft", "ArrowRight",
-    "ArrowUp", "ArrowDown", "Enter", "Tab", "Escape",
-    "Shift", "Control", "Alt", "Meta"
-  ];
+    // Clear buffer on navigation/editing/meta keys
+    const ignoreKeys = [
+      "Backspace", "Delete", "ArrowLeft", "ArrowRight",
+      "ArrowUp", "ArrowDown", "Enter", "Tab", "Escape",
+      "Shift", "Control", "Alt", "Meta"
+    ];
 
-  if (ignoreKeys.includes(e.key) || e.key.length !== 1) {
-    charBuffer = "";
-  }
-});
-
-if (android) {
-  document.addEventListener("input", (e) => {
-    //alert(`valid input: "${e.data}"`);
-    //if (!rEdit || !e.data) return;
-
-    const data = e.data;
-    const doc = rEdit.getDoc();
-    let cursor = doc.getCursor(); // Cursor is AFTER inserted char
-
-    const letters = /[\w%,.]/;
-    const token = rEdit.getTokenAt(cursor);
-    if (letters.test(data) && token.type !== "comment") {
-      charBuffer += data;
-      // Calculate starting point for re-inserting
-      const insertPos = {
-        line: cursor.line,
-        ch: cursor.ch - charBuffer.length + 1
-      };
-
-      // Replace from where the buffer began to current position
-      doc.replaceRange(charBuffer, insertPos, cursor);
-
-      // Set cursor at end of buffer
-      rEdit.setCursor({
-        line: insertPos.line,
-        ch: insertPos.ch + charBuffer.length
-      });
-      
-      // Show hints
-      rEdit.showHint({ completeSingle: false });
-    } else if (!letters.test(data)) {
-      // Reset buffer on non-matching input (e.g., space, enter, etc.)
+    if (ignoreKeys.includes(e.key) || e.key.length !== 1) {
       charBuffer = "";
     }
   });
-}
+
+  if (android) {
+    document.addEventListener("input", (e) => {
+      if (!rEdit || !e.data || e.data.length !== 1) {
+        charBuffer = "";
+        return;
+      }
+
+      const data = e.data;
+      const doc = rEdit.getDoc();
+      let cursor = doc.getCursor(); // Cursor is AFTER inserted char
+
+      const letters = /[\w%,.]/;
+      const token = rEdit.getTokenAt(cursor);
+      if (letters.test(data) && token.type !== "comment") {
+        charBuffer += data;
+        // Calculate starting point for re-inserting
+        const insertPos = {
+          line: cursor.line,
+          ch: cursor.ch - charBuffer.length + 1
+        };
+
+        // Replace from where the buffer began to current position
+        doc.replaceRange(charBuffer, insertPos, cursor);
+
+        // Set cursor at end of buffer
+        rEdit.setCursor({
+          line: insertPos.line,
+          ch: insertPos.ch + charBuffer.length
+        });
+
+        // Show hints
+        rEdit.showHint({ completeSingle: false });
+      } else if (!letters.test(data)) {
+        // Reset buffer on non-matching input (e.g., space, enter, etc.)
+        charBuffer = "";
+      }
+    });
+  }
+  rEdit.on('endCompletion', function () {
+    setTimeout(() => {
+      forceKeyboardOpen();
+    }, 10); // small delay may help
+  });
+
+  function forceKeyboardOpen() {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.style.position = "absolute";
+    input.style.opacity = "0";
+    input.style.height = "0";
+    input.style.width = "0";
+    input.style.border = "none";
+    input.style.padding = "0";
+    input.style.zIndex = "-1";
+    input.style.fontSize = "16px"; // prevents zoom on iOS
+
+    document.body.appendChild(input);
+    input.focus();
+
+    setTimeout(() => {
+      input.remove();
+      rEdit.focus(); // bring focus back to CodeMirror
+    }, 10);
+  }
 
 });
 
