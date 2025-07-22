@@ -232,7 +232,8 @@ function initCM() {
     });
    
       rEdit.on('change', function () { rEdit.save() });
-     if (!android) {
+     
+      if (!android) {
       rEdit.on("inputRead", function (cm, event) {
         var letters = /[\w%,.]/; //characters for activation
         var cur = cm.getCursor();
@@ -347,12 +348,13 @@ document.addEventListener('DOMContentLoaded', () => {
         charBuffer = "";
       }
     });
-  }
-  rEdit.on('endCompletion', function () {
-    setTimeout(() => {
-      forceKeyboardOpen();
-    }, 10); // small delay may help
-  });
+  
+
+  // rEdit.on('endCompletion', function () {
+  //   setTimeout(() => {
+  //     forceKeyboardOpen();
+  //   }, 10); // small delay may help
+  // });
 
   function forceKeyboardOpen() {
     const input = document.createElement("input");
@@ -362,6 +364,8 @@ document.addEventListener('DOMContentLoaded', () => {
     input.style.height = "0";
     input.style.width = "0";
     input.style.border = "none";
+    input.style.top = "0";
+    input.style.left = "-9999";
     input.style.padding = "0";
     input.style.zIndex = "-1";
     input.style.fontSize = "16px"; // prevents zoom on iOS
@@ -374,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rEdit.focus(); // bring focus back to CodeMirror
     }, 10);
   }
-
+  }
 });
 
 // Function to trigger formatting
