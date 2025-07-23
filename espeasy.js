@@ -381,31 +381,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Function to trigger formatting
 function triggerFormatting() {
-  let textarea;
-  if (confirmR) {
-    textarea = rEdit.getValue();
-  } else {
-    textarea = document.getElementById('rules').value;
-  }
-  const scrollInfo = rEdit.getScrollInfo();
   const doc = rEdit.getDoc();
-  let cursor = doc.getCursor();
+  const scrollInfo = rEdit.getScrollInfo();
+  const cursor = doc.getCursor();
+  
+  const currentLine = cursor.ch === 0 ? cursor.line - 1 : cursor.line;
+  const lineText = rEdit.getLine(currentLine) || "";
 
+  // Store initial text
+  let textarea = confirmR
+    ? rEdit.getValue()
+    : document.getElementById('rules').value;
+
+  // Apply transformations
   textarea = initalAutocorrection(textarea);
   textarea = formatLogic(textarea);
+
   if (confirmR) {
     rEdit.setValue(textarea);
-    rEdit.setCursor({
-      line: cursor.line,
-      ch: cursor.ch
-    });
-    rEdit.focus();
+
+    // Compute new cursor position
+    const newLine = currentLine;
+    const newCh = cursor.ch === 0 && lineText.length > 0
+      ? lineText.length
+      : cursor.ch - 1;
+
+    rEdit.setCursor({ line: newLine, ch: newCh });
     rEdit.scrollTo(scrollInfo.left, scrollInfo.top);
+    rEdit.focus();
     rEdit.save();
-  }
-  else {
+  } else {
     document.getElementById('rules').value = textarea;
   }
 }
