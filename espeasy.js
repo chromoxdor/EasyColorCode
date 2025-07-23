@@ -389,10 +389,20 @@ function triggerFormatting() {
   } else {
     textarea = document.getElementById('rules').value;
   }
+  const scrollInfo = rEdit.getScrollInfo();
+  const doc = rEdit.getDoc();
+  let cursor = doc.getCursor();
+
   textarea = initalAutocorrection(textarea);
   textarea = formatLogic(textarea);
   if (confirmR) {
     rEdit.setValue(textarea);
+    rEdit.setCursor({
+      line: cursor.line,
+      ch: cursor.ch
+    });
+    rEdit.focus();
+    rEdit.scrollTo(scrollInfo.left, scrollInfo.top);
     rEdit.save();
   }
   else {
