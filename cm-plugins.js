@@ -808,7 +808,7 @@ function findNext(cm, rev, callback) {
   cm.operation(function () {
     const state = getSearchState(cm);
 
-    // 🔸 Clear previous highlight
+    // Clear previous highlight
     if (state.lastHighlight) {
       state.lastHighlight.clear();
       state.lastHighlight = null;
@@ -820,7 +820,7 @@ function findNext(cm, rev, callback) {
       if (!cursor.find(rev)) return;
     }
 
-    // 🔸 Highlight current match
+    // Highlight current match
     const mark = cm.markText(cursor.from(), cursor.to(), {
       className: 'search-next-highlight'
     });
@@ -984,7 +984,7 @@ function findNext(cm, rev, callback) {
   });
 }
 
-  CodeMirror.commands.find = function(cm) {clearSearch(cm); doSearch(cm);};
+  CodeMirror.commands.find = function(cm) {doSearch;};
   CodeMirror.commands.findPersistent = function(cm) {clearSearch(cm); doSearch(cm, false, true);};
   CodeMirror.commands.findPersistentNext = function(cm) {doSearch(cm, false, true, true);};
   CodeMirror.commands.findPersistentPrev = function(cm) {doSearch(cm, true, true, true);};
