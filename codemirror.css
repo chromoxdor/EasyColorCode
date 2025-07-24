@@ -606,7 +606,7 @@ div.CodeMirror-dragcursors {
 }
 
 .cm-searching {
-  background-color: rgba(162, 162, 162, 0.396);
+  background-color: rgba(255, 247, 0, 0.536);
 }
 
 /* Used to force a border model for a node */
@@ -688,16 +688,16 @@ li.CodeMirror-hint-active {
 
 .CodeMirror-dialog {
   position: fixed;
-  height: 42px;
+  /* height: 42px; */
   left: 0;
   width: 100vw;
   background: inherit;
   z-index: 15;
-  padding: .1em .8em;
-  overflow: hidden;
+  padding: .4em .8em;
+  /* overflow: hidden;
   color: inherit;
   display: flex;
-  align-items: center;
+  align-items: center; */
 }
 
 .CodeMirror-dialog input::selection {

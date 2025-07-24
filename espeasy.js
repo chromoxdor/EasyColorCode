@@ -248,10 +248,98 @@ function initCM() {
 
 //--------------------------------------------------------------------------------- add formatting option
 
-// Add Format button inside the form
+function addFindButtons() {
+  const dialog = document.querySelector('.CodeMirror-dialog');
+  if (!dialog || dialog.querySelector('.search-button-group')) return;
+
+
+  function closeSearchDialog() {
+    const dlg = document.querySelector('.CodeMirror-dialog');
+    if (dlg) {
+      dlg.remove();
+      document.body.classList.remove('dialog-opened');
+    }
+  }
+
+  const buttons = [
+    {
+      title: 'Find Previous',
+      symbol: '▲',
+      action: () => rEdit.execCommand('findPersistentPrev')
+    },
+    {
+      title: 'Find Next',
+      symbol: '▼',
+      action: () => rEdit.execCommand('findPersistentNext')
+    },
+    {
+      title: 'Replace',
+      symbol: 'Replace',
+      action: () => {
+        closeSearchDialog();
+        rEdit.execCommand('replace');
+        addFindButtons();
+      }
+    },
+    {
+      title: 'Close',
+      symbol: '❌',
+      action: closeSearchDialog
+    },
+    {
+      title: 'Help',
+      symbol: '?',
+      action: () => {
+        alert(`Available shortcuts:
+• Ctrl+F / Cmd+F: Open search
+• Ctrl+G / Cmd+G: Find next
+• Shift+Ctrl+G / Shift+Cmd+G: Find previous
+• Shift+Ctrl+F / Cmd+Option+F: Replace
+• Shift+Ctrl+R / Shift+Cmd+Option+F: Replace all
+• Use /re/ syntax for regexp search`);
+      }
+    }
+  ];
+
+  buttons.forEach(({ title, symbol, action }) => {
+    const btn = document.createElement('span');
+    btn.title = title;
+    btn.className = title.toLowerCase() === 'help' ? 'button help' : 'button';
+    btn.innerHTML = symbol;
+    btn.style.cssText = `
+      cursor: pointer;
+      user-select: none;
+    `;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      action();
+    });
+    dialog.appendChild(btn);
+  });
+}
+
+// Add Searchfield button 
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementsByClassName('CodeMirror')[0];
+  const form = document.getElementById('rulesselect');
   if (form) {
+    // Add search help button to CodeMirror editor
+    const btn3 = document.createElement('button');
+    btn3.type = 'button';     // prevent form submission
+    btn3.id = 'searchBtn';
+    btn3.innerHTML = "&#128270;&#xFE0E;"; // magnifier
+    btn3.style.padding = "2px 5px";
+    btn3.className = 'button help'; // just the class, no inline style
+    form.appendChild(btn3);
+
+
+    btn3.addEventListener('click', () => {
+      if (typeof rEdit !== 'undefined') {
+        rEdit.execCommand('findPersistent'); // Show search dialog
+        addFindButtons();
+      }
+    });
+
+    // Add format document button
     const btn = document.createElement('button');
     btn.type = 'button';     // prevent form submission
     btn.id = 'formatBtn';
@@ -389,7 +477,7 @@ function triggerFormatting() {
   const doc = rEdit.getDoc();
   const scrollInfo = rEdit.getScrollInfo();
   const cursor = doc.getCursor();
-  
+
   const currentLine = cursor.ch === 0 ? cursor.line - 1 : cursor.line;
   const lineText = rEdit.getLine(currentLine) || "";
 

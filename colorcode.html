@@ -64,8 +64,24 @@
     h1 {
       color: #44607a;
       font-size: 30px;
+      height: 10px;
       text-align: center;
       text-transform: uppercase;
+    }
+
+    #rulesselect {
+      width: 100%;
+      display: flex;
+      padding: 5px;
+      justify-content: flex-end;
+    }
+
+    .search-button-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 6px;
+      z-index: 16;
     }
 
     #rules {
@@ -87,16 +103,12 @@
       font-size: 20px;
     }
 
-    .button {
-      top: 5px;
-      right: 5px;
+      .button {
       border: solid 1px;
       padding: 2px 5px;
-      position: absolute;
-      background: #0000007d;
+      background: #00000087;
       border-radius: 5px;
       color: white;
-      mix-blend-mode: normal;
     }
 
     button:hover {
@@ -315,8 +327,12 @@
 
   </div>
   <div id="container">
-    <h1>ESPEasy Code Editor</h1>
-    <textarea placeholder="Type your text here..." id="rules"></textarea>
+    <div style="
+    width: 100%;">
+      <h1>ESPEasy Code Editor</h1>
+      <div id=" rulesselect"></div>
+  </div>
+  <textarea placeholder="Type your text here..." id="rules"></textarea>
   </div>
   <div id="framie"></div>
   <div id="opener">
