@@ -396,52 +396,52 @@ document.addEventListener('DOMContentLoaded', () => {
   // }
 
   let charBuffer = "";
-let findTimer = null;
+  let findTimer = null;
 
-// Global keydown handler
-document.addEventListener('keydown', function (e) {
-  const key = e.key;
-  const isCtrlShiftF = e.ctrlKey && e.shiftKey && key.toLowerCase() === 'f';
+  // Global keydown handler
+  document.addEventListener('keydown', function (e) {
+    const key = e.key;
+    const isCtrlShiftF = e.ctrlKey && e.shiftKey && key.toLowerCase() === 'f';
 
-  // Ctrl + Shift + F triggers formatting
-  if (isCtrlShiftF) {
-    e.preventDefault();
-    console.log('Keyboard shortcut detected: Formatting...');
-    triggerFormatting();
-    return;
-  }
-
-  // Keys that cancel character buffering
-  const nonCharKeys = [
-    "Backspace", "Delete", "ArrowLeft", "ArrowRight",
-    "ArrowUp", "ArrowDown", "Enter", "Tab", "Escape",
-    "Shift", "Control", "Alt", "Meta"
-  ];
-
-  if (nonCharKeys.includes(key) || key.length !== 1) {
-    charBuffer = "";
-  }
-
-  // Proactive find: when typing in the search field
-  const active = document.activeElement;
-  const isSearchField = active?.classList?.contains('CodeMirror-search-field');
-
-  if (isSearchField && key !== 'Enter') {
-    const label = document.querySelector('.CodeMirror-search-label');
-    const isReplaceLabel = label && /^(Replace|With):\s*$/i.test(label.textContent.trim());
-
-    if (!isReplaceLabel) {
-      // Reset any previous timer
-      if (findTimer) clearTimeout(findTimer);
-
-      // Set a new timer to trigger search
-      findTimer = setTimeout(() => {
-        triggerSearchEnter();
-        findTimer = null;
-      }, 100);
+    // Ctrl + Shift + F triggers formatting
+    if (isCtrlShiftF) {
+      e.preventDefault();
+      console.log('Keyboard shortcut detected: Formatting...');
+      triggerFormatting();
+      return;
     }
-  }
-});
+
+    // Keys that cancel character buffering
+    const nonCharKeys = [
+      "Backspace", "Delete", "ArrowLeft", "ArrowRight",
+      "ArrowUp", "ArrowDown", "Enter", "Tab", "Escape",
+      "Shift", "Control", "Alt", "Meta"
+    ];
+
+    if (nonCharKeys.includes(key) || key.length !== 1) {
+      charBuffer = "";
+    }
+
+    // Proactive find: when typing in the search field
+    const active = document.activeElement;
+    const isSearchField = active?.classList?.contains('CodeMirror-search-field');
+
+    if (isSearchField && key !== 'Enter') {
+      const label = document.querySelector('.CodeMirror-search-label');
+      const isReplaceLabel = label && /^(Replace|With):\s*$/i.test(label.textContent.trim());
+
+      if (!isReplaceLabel) {
+        // Reset any previous timer
+        if (findTimer) clearTimeout(findTimer);
+
+        // Set a new timer to trigger search
+        findTimer = setTimeout(() => {
+          triggerSearchEnter();
+          findTimer = null;
+        }, 100);
+      }
+    }
+  });
 
   function triggerSearchEnter() {
     const input = getDeepActiveElement();
