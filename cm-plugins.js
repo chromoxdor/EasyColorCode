@@ -804,18 +804,35 @@ var isSame;
     }
   }
 
-  function findNext(cm, rev, callback) {cm.operation(function() {
-    var state = getSearchState(cm);
-    var cursor = getSearchCursor(cm, state.query, rev ? state.posFrom : state.posTo);
+function findNext(cm, rev, callback) {
+  cm.operation(function () {
+    const state = getSearchState(cm);
+
+    // 🔸 Clear previous highlight
+    if (state.lastHighlight) {
+      state.lastHighlight.clear();
+      state.lastHighlight = null;
+    }
+
+    let cursor = getSearchCursor(cm, state.query, rev ? state.posFrom : state.posTo);
     if (!cursor.find(rev)) {
       cursor = getSearchCursor(cm, state.query, rev ? CodeMirror.Pos(cm.lastLine()) : CodeMirror.Pos(cm.firstLine(), 0));
       if (!cursor.find(rev)) return;
     }
+
+    // 🔸 Highlight current match
+    const mark = cm.markText(cursor.from(), cursor.to(), {
+      className: 'search-next-highlight'
+    });
+    state.lastHighlight = mark;
+
     cm.setSelection(cursor.from(), cursor.to());
-    cm.scrollIntoView({from: cursor.from(), to: cursor.to()}, 20);
-    state.posFrom = cursor.from(); state.posTo = cursor.to();
-    if (callback) callback(cursor.from(), cursor.to())
-  });}
+    cm.scrollIntoView({ from: cursor.from(), to: cursor.to() }, 20);
+    state.posFrom = cursor.from();
+    state.posTo = cursor.to();
+    if (callback) callback(cursor.from(), cursor.to());
+  });
+}
 
   function clearSearch(cm) {cm.operation(function() {
     var state = getSearchState(cm);
@@ -880,45 +897,92 @@ var isSame;
   }
 
   function replace(cm, all) {
-    if (cm.getOption("readOnly")) return;
-    var query = cm.getSelection() || getSearchState(cm).lastQuery;
-    var dialogText = all ? cm.phrase("Replace all:") : cm.phrase("Replace:")
-    var fragment = el("", null,
-                      el("span", {className: "CodeMirror-search-label"}, dialogText),
-                      getReplaceQueryDialog(cm))
-    dialog(cm, fragment, dialogText, query, function(query) {
-      if (!query) return;
-      query = parseQuery(query);
-      dialog(cm, getReplacementQueryDialog(cm), cm.phrase("Replace with:"), "", function(text) {
-        text = parseString(text)
-        if (all) {
-          replaceAll(cm, query, text)
-        } else {
-          clearSearch(cm);
-          var cursor = getSearchCursor(cm, query, cm.getCursor("from"));
-          var advance = function() {
-            var start = cursor.from(), match;
-            if (!(match = cursor.findNext())) {
-              cursor = getSearchCursor(cm, query);
-              if (!(match = cursor.findNext()) ||
-                  (start && cursor.from().line == start.line && cursor.from().ch == start.ch)) return;
-            }
-            cm.setSelection(cursor.from(), cursor.to());
-            cm.scrollIntoView({from: cursor.from(), to: cursor.to()});
-            confirmDialog(cm, getDoReplaceConfirm(cm), cm.phrase("Replace?"),
-                          [function() {doReplace(match);}, advance,
-                           function() {replaceAll(cm, query, text)}]);
-          };
-          var doReplace = function(match) {
-            cursor.replace(typeof query == "string" ? text :
-                           text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
-            advance();
-          };
-          advance();
-        }
-      });
+  if (cm.getOption("readOnly")) return;
+
+  let activeHighlight = null; // Will store the current highlight
+
+  function highlightCurrentMatch(from, to) {
+    if (activeHighlight) {
+      activeHighlight.clear();
+    }
+    activeHighlight = cm.markText(from, to, {
+      className: 'search-next-highlight'
     });
   }
+
+  function clearHighlight() {
+    if (activeHighlight) {
+      activeHighlight.clear();
+      activeHighlight = null;
+    }
+  }
+
+  // Clear highlight when dialog is removed (e.g., user presses Esc or clicks ❌)
+  const observer = new MutationObserver(() => {
+    if (!document.querySelector('.CodeMirror-dialog')) {
+      clearHighlight();
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.querySelector('.CodeMirror'), {
+    childList: true,
+    subtree: true
+  });
+
+  var query = cm.getSelection() || getSearchState(cm).lastQuery;
+  var dialogText = all ? cm.phrase("Replace all:") : cm.phrase("Replace:");
+  var fragment = el("", null,
+    el("span", { className: "CodeMirror-search-label" }, dialogText),
+    getReplaceQueryDialog(cm));
+
+  dialog(cm, fragment, dialogText, query, function (query) {
+    if (!query) return;
+    query = parseQuery(query);
+
+    dialog(cm, getReplacementQueryDialog(cm), cm.phrase("Replace with:"), "", function (text) {
+      text = parseString(text);
+
+      if (all) {
+        clearHighlight();
+        replaceAll(cm, query, text);
+      } else {
+        clearSearch(cm);
+        var cursor = getSearchCursor(cm, query, cm.getCursor("from"));
+
+        var advance = function () {
+          var start = cursor.from(), match;
+
+          if (!(match = cursor.findNext())) {
+            cursor = getSearchCursor(cm, query);
+            if (!(match = cursor.findNext()) ||
+              (start && cursor.from().line == start.line && cursor.from().ch == start.ch)) return;
+          }
+
+          cm.setSelection(cursor.from(), cursor.to());
+          cm.scrollIntoView({ from: cursor.from(), to: cursor.to() });
+          highlightCurrentMatch(cursor.from(), cursor.to());
+
+          confirmDialog(cm, getDoReplaceConfirm(cm), cm.phrase("Replace?"), [
+            function () { doReplace(match); },
+            advance,
+            function () {
+              clearHighlight();
+              replaceAll(cm, query, text);
+            }
+          ]);
+        };
+
+        var doReplace = function (match) {
+          cursor.replace(typeof query == "string" ? text :
+            text.replace(/\$(\d)/g, function (_, i) { return match[i]; }));
+          advance();
+        };
+
+        advance();
+      }
+    });
+  });
+}
 
   CodeMirror.commands.find = function(cm) {clearSearch(cm); doSearch(cm);};
   CodeMirror.commands.findPersistent = function(cm) {clearSearch(cm); doSearch(cm, false, true);};

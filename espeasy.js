@@ -243,23 +243,41 @@ function initCM() {
         };
       });
     }
+    CodeMirror.keyMap.default["Ctrl-F"] = function (cm) {
+      openFind(); // Inject your custom buttons
+    };
+
+    CodeMirror.keyMap.default["Cmd-F"] = function (cm) {
+      openFind();
+    };
   }
 }
 
-//--------------------------------------------------------------------------------- add formatting option
+//----------------------------------------------------------------------- add search and formatting options
 
-function addFindButtons() {
+function closeSearchDialog() {
+  const dlg = document.querySelectorAll('.CodeMirror-dialog');
+  if (dlg.length > 0) {
+    rEdit.execCommand('clearSearch');
+
+    // Remove the highlight classes from marked text spans
+    const highlighted = document.querySelectorAll('.CodeMirror .search-next-highlight');
+    highlighted.forEach(el => el.classList.remove('search-next-highlight'));
+
+    dlg.forEach(d => d.remove());
+
+    document.body.classList.remove('dialog-opened');
+  }
+}
+
+function openFind() {
+  closeSearchDialog(); // Close any existing search dialog
+  rEdit.execCommand('findPersistent'); // Show search dialog
+
+
+  const element = document.querySelector('.CodeMirror-selected');
   const dialog = document.querySelector('.CodeMirror-dialog');
   if (!dialog || dialog.querySelector('.search-button-group')) return;
-
-
-  function closeSearchDialog() {
-    const dlg = document.querySelector('.CodeMirror-dialog');
-    if (dlg) {
-      dlg.remove();
-      document.body.classList.remove('dialog-opened');
-    }
-  }
 
   const buttons = [
     {
@@ -278,7 +296,7 @@ function addFindButtons() {
       action: () => {
         closeSearchDialog();
         rEdit.execCommand('replace');
-        addFindButtons();
+        openFind();
       }
     },
     {
@@ -334,8 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btn3.addEventListener('click', () => {
       if (typeof rEdit !== 'undefined') {
-        rEdit.execCommand('findPersistent'); // Show search dialog
-        addFindButtons();
+        openFind();
       }
     });
 
