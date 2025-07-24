@@ -255,7 +255,6 @@ function initCM() {
 
 //----------------------------------------------------------------------- add search and formatting options
 
-
 function closeSearchDialog() {
   const dlg = document.querySelectorAll('.CodeMirror-dialog');
   if (dlg.length > 0) {
@@ -299,7 +298,7 @@ function addFindButtons() {
       action: () => {
         closeSearchDialog();
         rEdit.execCommand('replace');
-        openFind();
+        addFindButtons(); // Re-add buttons after replacing
       }
     },
     {
