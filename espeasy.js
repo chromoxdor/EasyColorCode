@@ -250,7 +250,7 @@ function initCM() {
 
 // Add Format button inside the form
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('rulesselect');
+  const form = document.getElementsByClassName('CodeMirror')[0];
   if (form) {
     const btn = document.createElement('button');
     btn.type = 'button';     // prevent form submission
@@ -265,6 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Add hint button to CodeMirror editor
   // const form2 = document.getElementsByClassName('CodeMirror')[0];
   // if (form2) {
   //   console.log('Form2 found', form2);
@@ -309,8 +310,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ignoreKeys.includes(e.key) || e.key.length !== 1) {
       charBuffer = "";
     }
+
   });
 
+
+  // Workaround of showing hints for Android devices
   if (android) {
     document.addEventListener("input", (e) => {
       if (!rEdit || !e.data || e.data.length !== 1) {
