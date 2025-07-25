@@ -461,10 +461,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Workaround of showing hints for Android devices
   if (android) {
     document.addEventListener("input", (e) => {
-      if (!rEdit || !e.data || e.data.length !== 1) {
-        charBuffer = "";
-        return;
-      }
+      if (!rEdit || !e.data || e.data.length !== 1 || document.activeElement !== rEdit.getInputField()) {
+      charBuffer = "";
+      return;
+    }
 
       const data = e.data;
       const doc = rEdit.getDoc();
