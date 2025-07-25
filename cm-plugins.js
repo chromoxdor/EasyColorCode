@@ -836,13 +836,9 @@ var isSame;
       //cXd Highlight current match
       highlightCurrentMatch(cursor.from(), cursor.to());
 
-      // cXd scroll line to top
-      const top = cm.charCoords(cursor.from(), 'local').top;
-      cm.scrollTo(null, top);
-
       cm.setSelection(cursor.from(), cursor.to());
       //cm.scrollIntoView({ from: cursor.from(), to: cursor.to() }, 20);
-      cm.scrollTo(null, cm.charCoords(cursor.from(), 'local').top); // scroll line to top
+      cm.scrollTo(null, cm.charCoords(cursor.from(), 'local').top); // cXd scroll line to top
       state.posFrom = cursor.from();
       state.posTo = cursor.to();
       if (callback) callback(cursor.from(), cursor.to());
@@ -958,7 +954,8 @@ var isSame;
             }
 
             cm.setSelection(cursor.from(), cursor.to());
-            cm.scrollIntoView({ from: cursor.from(), to: cursor.to() });
+            //cm.scrollIntoView({ from: cursor.from(), to: cursor.to() });
+            cm.scrollTo(null, cm.charCoords(cursor.from(), 'local').top); // cXd scroll line to top
             highlightCurrentMatch(cursor.from(), cursor.to());
 
             confirmDialog(cm, getDoReplaceConfirm(cm), cm.phrase("Replace?"), [
