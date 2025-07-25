@@ -817,7 +817,7 @@ var isSame;
   function findNext(cm, rev, callback) {
     cm.operation(function () {
       const state = getSearchState(cm);
-// store the markText reference on the editor instance
+      // store the markText reference on the editor instance
       function highlightCurrentMatch(from, to) {
         if (cm.__searchNextHighlight) {
           cm.__searchNextHighlight.clear();
@@ -914,7 +914,7 @@ var isSame;
   function replace(cm, all) {
     if (cm.getOption("readOnly")) return;
 
-// store the markText reference on the editor instance
+    // store the markText reference on the editor instance
     function highlightCurrentMatch(from, to) {
       if (cm.__searchNextHighlight) {
         cm.__searchNextHighlight.clear();
@@ -938,7 +938,6 @@ var isSame;
         text = parseString(text);
 
         if (all) {
-          clearHighlight();
           replaceAll(cm, query, text);
         } else {
           clearSearch(cm);
@@ -961,7 +960,6 @@ var isSame;
               function () { doReplace(match); },
               advance,
               function () {
-                clearHighlight();
                 replaceAll(cm, query, text);
               }
             ]);
