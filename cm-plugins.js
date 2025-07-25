@@ -832,12 +832,17 @@ var isSame;
         cursor = getSearchCursor(cm, state.query, rev ? CodeMirror.Pos(cm.lastLine()) : CodeMirror.Pos(cm.firstLine(), 0));
         if (!cursor.find(rev)) return;
       }
-      // Highlight current match
+
+      //cXd Highlight current match
       highlightCurrentMatch(cursor.from(), cursor.to());
 
+      // cXd scroll line to top
+      const top = cm.charCoords(cursor.from(), 'local').top;
+      cm.scrollTo(null, top);
 
       cm.setSelection(cursor.from(), cursor.to());
-      cm.scrollIntoView({ from: cursor.from(), to: cursor.to() }, 20);
+      //cm.scrollIntoView({ from: cursor.from(), to: cursor.to() }, 20);
+      cm.scrollTo(null, cm.charCoords(cursor.from(), 'local').top); // scroll line to top
       state.posFrom = cursor.from();
       state.posTo = cursor.to();
       if (callback) callback(cursor.from(), cursor.to());
