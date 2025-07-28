@@ -204,7 +204,7 @@ var android = /Android/.test(navigator.userAgent);
 
 function initCM() {
   if (android) {
-    if (confirm("Do you want to enable colored rules?\n(There are some issues with Android causing it to fail!)\nTestet with Chrome, Firefox and Vivaldi so far.\nPlease report any issues you may have with this feature.")) {
+    if (confirm("Do you want to enable colored rules on your Android device?\nThis feature hasn't been fully tested yet and may still have some issues.\nIt is currently expected to work with Chrome, Firefox, and Vivaldi.\nPlease report any problems you encounter.")) {
       confirmR = true
     } else {
       confirmR = false
@@ -278,6 +278,7 @@ let findDialogObserver = null; // Keep one observer
 function openFind() {
   // Disconnect previous observer if it exists
   if (findDialogObserver) {
+    document.querySelectorAll('.CodeMirror-dialog').forEach(d => d.remove());
     findDialogObserver.disconnect();
     findDialogObserver = null;
   }
@@ -585,18 +586,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function triggerFormatting() {
+  let scrollInfo, cursor, currentLine, lineText, textarea;
+
   if (confirmR) {
     const doc = rEdit.getDoc();
-    const scrollInfo = rEdit.getScrollInfo();
-    const cursor = doc.getCursor();
+    scrollInfo = rEdit.getScrollInfo();
+    cursor = doc.getCursor();
 
-    const currentLine = cursor.ch === 0 ? cursor.line - 1 : cursor.line;
-    const lineText = rEdit.getLine(currentLine) || "";
+    currentLine = cursor.ch === 0 ? cursor.line - 1 : cursor.line;
+    lineText = rEdit.getLine(currentLine) || "";
+
+    textarea = rEdit.getValue();
+  } else {
+    textarea = document.getElementById('rules').value;
   }
-  // Store initial text
-  let textarea = confirmR
-    ? rEdit.getValue()
-    : document.getElementById('rules').value;
 
   // Apply transformations
   textarea = initalAutocorrection(textarea);
@@ -605,15 +608,20 @@ function triggerFormatting() {
   if (confirmR) {
     rEdit.setValue(textarea);
 
-    // Compute new cursor position
+    // Restore cursor
     const newLine = currentLine;
     const newCh = cursor.ch === 0 && lineText.length > 0
       ? lineText.length
-      : cursor.ch - 1;
+      : cursor.ch;
 
     rEdit.setCursor({ line: newLine, ch: newCh });
-    rEdit.scrollTo(scrollInfo.left, scrollInfo.top);
-    rEdit.focus();
+
+    // Delay scroll restoration slightly to ensure rendering is complete
+    setTimeout(() => {
+      rEdit.scrollTo(scrollInfo.left, scrollInfo.top);
+      rEdit.focus();
+    }, 0);
+
     rEdit.save();
   } else {
     document.getElementById('rules').value = textarea;
